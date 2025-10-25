@@ -35,7 +35,7 @@ import { Copy, Settings, Loader2, Link as LinkIcon, Share2 } from 'lucide-react'
 import { nanoid } from 'nanoid';
 
 const formSchema = z.object({
-  content: z.string().min(1, 'Note cannot be empty.'),
+  content: z.string().min(1, 'یادداشت نمی‌تواند خالی باشد.'),
   password: z.string().optional(),
   expireValue: z.coerce.number().min(1).optional(),
   expireUnit: z.enum(['minutes', 'hours', 'days']).optional(),
@@ -106,13 +106,13 @@ export default function NoteCreator() {
         const link = `${window.location.origin}/n/${result.id}${!hasPassword ? `#${key}` : ''}`;
         setNoteLink(link);
       } else {
-        throw new Error('Failed to create note.');
+        throw new Error('ایجاد یادداشت ناموفق بود.');
       }
     } catch (error) {
       toast({
         variant: 'destructive',
-        title: 'Error',
-        description: 'Could not create the note. Please try again.',
+        title: 'خطا',
+        description: 'امکان ایجاد یادداشت وجود ندارد. لطفاً دوباره تلاش کنید.',
       });
       console.error(error);
     } finally {
@@ -124,8 +124,8 @@ export default function NoteCreator() {
     if (noteLink) {
       navigator.clipboard.writeText(noteLink);
       toast({
-        title: 'Copied!',
-        description: 'The note link has been copied to your clipboard.',
+        title: 'کپی شد!',
+        description: 'لینک یادداشت در کلیپ‌بورد شما کپی شد.',
       });
     }
   };
@@ -133,10 +133,10 @@ export default function NoteCreator() {
   const shareLink = () => {
     if (navigator.share && noteLink) {
       navigator.share({
-        title: 'QuickNote Link',
-        text: 'Here is a secure note for you:',
+        title: 'لینک یادداشت سریع',
+        text: 'یک یادداشت امن برای شما:',
         url: noteLink,
-      }).catch(error => console.log('Error sharing:', error));
+      }).catch(error => console.log('خطا در اشتراک‌گذاری:', error));
     } else {
       copyToClipboard();
     }
@@ -150,26 +150,26 @@ export default function NoteCreator() {
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <LinkIcon className="h-6 w-6 text-primary" />
-              Link Created!
+              لینک ایجاد شد!
             </CardTitle>
-            <CardDescription>Your secure note is ready to be shared.</CardDescription>
+            <CardDescription>یادداشت امن شما آماده اشتراک‌گذاری است.</CardDescription>
           </CardHeader>
           <CardContent className="space-y-6">
             <div className="flex justify-center">
               <QRCode value={noteLink} size={160} bgColor="hsl(var(--background))" fgColor="hsl(var(--foreground))" className="p-2 bg-card rounded-lg border"/>
             </div>
             <div className="flex items-center space-x-2">
-              <Input value={noteLink} readOnly className="flex-1" />
-              <Button variant="outline" size="icon" onClick={copyToClipboard} aria-label="Copy link">
+              <Input value={noteLink} readOnly className="flex-1 text-left" dir="ltr" />
+              <Button variant="outline" size="icon" onClick={copyToClipboard} aria-label="کپی لینک">
                 <Copy className="h-4 w-4" />
               </Button>
             </div>
             <div className="flex flex-col sm:flex-row gap-2">
                 <Button onClick={shareLink} className="w-full">
-                    <Share2 className="mr-2 h-4 w-4" /> Share Link
+                    <Share2 className="ml-2 h-4 w-4" /> اشتراک‌گذاری لینک
                 </Button>
                 <Button variant="secondary" onClick={() => { setNoteLink(null); form.reset(); }} className="w-full">
-                  Create Another Note
+                  ایجاد یادداشت دیگر
                 </Button>
             </div>
           </CardContent>
@@ -189,8 +189,8 @@ export default function NoteCreator() {
               <FormItem>
                 <FormControl>
                   <Textarea
-                    placeholder="Type your secret note here..."
-                    className="h-64 resize-none text-base border-0 focus-visible:ring-0 focus-visible:ring-offset-0 p-0 shadow-none"
+                    placeholder="یادداشت محرمانه خود را اینجا تایپ کنید..."
+                    className="h-64 resize-none text-base border-0 focus-visible:ring-0 focus-visible:ring-offset-0 p-0 shadow-none bg-transparent"
                     {...field}
                   />
                 </FormControl>
@@ -215,9 +215,9 @@ export default function NoteCreator() {
                   name="password"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Password (optional)</FormLabel>
+                      <FormLabel>رمز عبور (اختیاری)</FormLabel>
                       <FormControl>
-                        <Input type="password" placeholder="Protect your note" {...field} />
+                        <Input type="password" placeholder="از یادداشت خود محافظت کنید" {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -230,9 +230,9 @@ export default function NoteCreator() {
                     name="expireValue"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Expires after</FormLabel>
+                        <FormLabel>انقضا پس از</FormLabel>
                         <FormControl>
-                          <Input type="number" placeholder="e.g., 2" {...field} />
+                          <Input type="number" placeholder="مثلاً ۲" {...field} />
                         </FormControl>
                       </FormItem>
                     )}
@@ -242,17 +242,17 @@ export default function NoteCreator() {
                     name="expireUnit"
                     render={({ field }) => (
                       <FormItem>
-                         <FormLabel className="opacity-0 hidden md:inline-block">Unit</FormLabel>
+                         <FormLabel className="opacity-0 hidden md:inline-block">واحد</FormLabel>
                          <Select onValueChange={field.onChange} defaultValue={field.value}>
                             <FormControl>
                               <SelectTrigger>
-                                <SelectValue placeholder="Unit"/>
+                                <SelectValue placeholder="واحد"/>
                               </SelectTrigger>
                             </FormControl>
                             <SelectContent>
-                              <SelectItem value="minutes">Minutes</SelectItem>
-                              <SelectItem value="hours">Hours</SelectItem>
-                              <SelectItem value="days">Days</SelectItem>
+                              <SelectItem value="minutes">دقیقه</SelectItem>
+                              <SelectItem value="hours">ساعت</SelectItem>
+                              <SelectItem value="days">روز</SelectItem>
                             </SelectContent>
                           </Select>
                       </FormItem>
@@ -266,9 +266,9 @@ export default function NoteCreator() {
                   render={({ field }) => (
                     <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3 shadow-sm">
                       <div className="space-y-0.5">
-                        <FormLabel>Self-destruct</FormLabel>
+                        <FormLabel>تخریب خودکار</FormLabel>
                         <p className="text-sm text-muted-foreground">
-                          Delete note after the first view.
+                          یادداشت پس از اولین بازدید حذف شود.
                         </p>
                       </div>
                       <FormControl>
@@ -289,10 +289,10 @@ export default function NoteCreator() {
           <Button type="submit" className="w-full" disabled={isSubmitting}>
             {isSubmitting ? (
               <>
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                Creating...
+                <Loader2 className="ml-2 h-4 w-4 animate-spin" />
+                در حال ایجاد...
               </>
-            ) : 'Create Link'
+            ) : 'ایجاد لینک'
             }
           </Button>
           <Button
@@ -300,10 +300,10 @@ export default function NoteCreator() {
             variant="outline"
             onClick={() => setShowSettings(!showSettings)}
             className="w-full sm:w-auto"
-            aria-label="Toggle settings"
+            aria-label="تغییر تنظیمات"
           >
             <Settings className="h-4 w-4" />
-            <span className="sm:hidden ml-2">Settings</span>
+            <span className="sm:hidden ml-2">تنظیمات</span>
           </Button>
         </div>
       </form>

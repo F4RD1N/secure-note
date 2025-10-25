@@ -10,15 +10,15 @@ export default function NoteExpiredPage() {
         <CardHeader>
           <CardTitle className="flex flex-col items-center gap-2">
             <FileWarning className="w-12 h-12 text-destructive" />
-            Note Unavailable
+            یادداشت در دسترس نیست
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
           <p className="text-muted-foreground">
-            This note has expired, reached its view limit, or has been deleted.
+            این یادداشت منقضی شده، به حد مجاز بازدید رسیده یا حذف شده است.
           </p>
           <Button asChild>
-            <Link href="/">Create a new note</Link>
+            <Link href="/">ایجاد یادداشت جدید</Link>
           </Button>
         </CardContent>
       </Card>

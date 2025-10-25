@@ -8,6 +8,7 @@ import { motion } from 'framer-motion';
 import { decrypt } from '@/lib/crypto';
 import type { Note } from '@/lib/types';
 import { formatDistanceToNow } from 'date-fns';
+import { fa } from 'date-fns/locale';
 
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -21,7 +22,7 @@ interface NoteViewerProps {
 }
 
 const passwordSchema = z.object({
-  password: z.string().min(1, 'Password is required.'),
+  password: z.string().min(1, 'رمز عبور الزامی است.'),
 });
 
 export default function NoteViewer({ note }: NoteViewerProps) {
@@ -39,9 +40,9 @@ export default function NoteViewer({ note }: NoteViewerProps) {
       const updateTimer = () => {
         const remaining = note.expires_at! - Date.now();
         if (remaining > 0) {
-          setTimeLeft(formatDistanceToNow(note.expires_at!));
+          setTimeLeft(formatDistanceToNow(note.expires_at!, { locale: fa, addSuffix: true }));
         } else {
-          setTimeLeft('Expired');
+          setTimeLeft('منقضی شده');
         }
       };
       updateTimer();
@@ -55,13 +56,13 @@ export default function NoteViewer({ note }: NoteViewerProps) {
       try {
         const key = window.location.hash.substring(1);
         if (!key) {
-          setError('Decryption key not found in URL.');
+          setError('کلید رمزگشایی در آدرس یافت نشد.');
           return;
         }
         const content = decrypt({ content: note.content, iv: note.iv, salt: note.salt }, key);
         setDecryptedContent(content);
       } catch (e) {
-        setError('Failed to decrypt note. The link might be corrupted.');
+        setError('رمزگشایی یادداشت ناموفق بود. ممکن است لینک خراب باشد.');
         console.error(e);
       }
     }
@@ -75,7 +76,7 @@ export default function NoteViewer({ note }: NoteViewerProps) {
       const content = decrypt({ content: note.content, iv: note.iv, salt: note.salt }, data.password);
       setDecryptedContent(content);
     } catch (e) {
-      setError('Invalid password. Please try again.');
+      setError('رمز عبور نامعتبر است. لطفاً دوباره تلاش کنید.');
       console.error(e);
       form.reset();
     } finally {
@@ -88,16 +89,16 @@ export default function NoteViewer({ note }: NoteViewerProps) {
       <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="w-full">
         <Card>
           <CardHeader>
-            <CardTitle>Your Secure Note</CardTitle>
+            <CardTitle>یادداشت امن شما</CardTitle>
             <div className="text-sm text-muted-foreground flex flex-wrap gap-x-4 gap-y-1 pt-2">
               {note.views_remaining !== null && (
                 <span className="flex items-center gap-1.5">
-                  <Eye className="w-4 h-4" /> {note.views_remaining} view(s) left
+                  <Eye className="w-4 h-4" /> {note.views_remaining} بازدید باقی مانده
                 </span>
               )}
               {timeLeft !== null && (
                 <span className="flex items-center gap-1.5">
-                  <Hourglass className="w-4 h-4" /> Expires in {timeLeft}
+                  <Hourglass className="w-4 h-4" /> {timeLeft}
                 </span>
               )}
             </div>
@@ -118,9 +119,9 @@ export default function NoteViewer({ note }: NoteViewerProps) {
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <Lock className="w-5 h-5" /> Password Protected
+              <Lock className="w-5 h-5" /> محافظت شده با رمز عبور
             </CardTitle>
-            <CardDescription>Enter the password to view this note.</CardDescription>
+            <CardDescription>برای مشاهده این یادداشت، رمز عبور را وارد کنید.</CardDescription>
           </CardHeader>
           <CardContent>
             <Form {...form}>
@@ -130,7 +131,7 @@ export default function NoteViewer({ note }: NoteViewerProps) {
                   name="password"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Password</FormLabel>
+                      <FormLabel>رمز عبور</FormLabel>
                       <FormControl>
                         <Input type="password" {...field} />
                       </FormControl>
@@ -144,8 +145,8 @@ export default function NoteViewer({ note }: NoteViewerProps) {
                   </Alert>
                 )}
                 <Button type="submit" className="w-full" disabled={isDecrypting}>
-                  {isDecrypting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                  Decrypt Note
+                  {isDecrypting && <Loader2 className="ml-2 h-4 w-4 animate-spin" />}
+                  رمزگشایی یادداشت
                 </Button>
               </form>
             </Form>
@@ -159,13 +160,13 @@ export default function NoteViewer({ note }: NoteViewerProps) {
     <div className="flex flex-col items-center justify-center text-center space-y-4 w-full h-full">
        {error ? (
          <Alert variant="destructive" className="w-full">
-            <AlertTitle>Decryption Error</AlertTitle>
+            <AlertTitle>خطای رمزگشایی</AlertTitle>
             <AlertDescription>{error}</AlertDescription>
          </Alert>
        ) : (
          <>
           <Loader2 className="h-8 w-8 animate-spin text-primary" />
-          <p className="text-muted-foreground">Decrypting note...</p>
+          <p className="text-muted-foreground">در حال رمزگشایی یادداشت...</p>
          </>
        )}
     </div>
