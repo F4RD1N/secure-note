@@ -278,7 +278,7 @@ export default function NoteCreator() {
                         <Textarea
                           {...field}
                           ref={textareaRef}
-                          placeholder="یادداشت محرمانه خود را اینجا تایپ کنید... (از مارک‌داون پشتیبانی می‌شود)"
+                          placeholder="یادداشت خود را اینجا تایپ کنید... (از مارک‌داون پشتیبانی می‌شود)"
                           className="h-full resize-none text-base border-0 focus-visible:ring-0 focus-visible:ring-offset-0 p-0 shadow-none bg-transparent"
                         />
                      </FormControl>
