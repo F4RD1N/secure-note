@@ -179,7 +179,7 @@ export default function NoteCreator() {
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="flex flex-col h-full">
-        <Card className="flex-1 flex flex-col bg-white/5 border-0 shadow-none p-0">
+        <Card className="flex-1 flex flex-col bg-transparent border-0 shadow-none p-0">
             <CardContent className="flex-1 flex flex-col p-4">
                <FormField
                   control={form.control}
@@ -199,7 +199,7 @@ export default function NoteCreator() {
                   />
             </CardContent>
          </Card>
-        <Card className="mt-4 bg-white/5 border-0 shadow-none p-0">
+        <Card className="mt-4 bg-transparent border-0 shadow-none p-0">
             <CardContent className="p-4 space-y-4">
                  <div className="space-y-1">
                     <h3 className="text-base font-medium tracking-tight">تنظیمات</h3>
@@ -211,7 +211,7 @@ export default function NoteCreator() {
                     <FormItem>
                     <FormLabel>رمز عبور (اختیاری)</FormLabel>
                     <FormControl>
-                        <Input type="password" placeholder="از یادداشت خود محافظت کنید" {...field} className="bg-black/20"/>
+                        <Input type="password" placeholder="از یادداشت خود محافظت کنید" {...field} />
                     </FormControl>
                     <FormMessage />
                     </FormItem>
@@ -226,7 +226,7 @@ export default function NoteCreator() {
                       <FormItem>
                           <FormLabel>انقضا پس از</FormLabel>
                           <FormControl>
-                          <Input type="number" placeholder="مثلاً ۲" {...field} className="bg-black/20"/>
+                          <Input type="number" placeholder="مثلاً ۲" {...field} />
                           </FormControl>
                       </FormItem>
                       )}
@@ -239,7 +239,7 @@ export default function NoteCreator() {
                           <FormLabel>&nbsp;</FormLabel>
                           <FormControl>
                               <Select onValueChange={field.onChange} defaultValue={field.value}>
-                                  <SelectTrigger className="bg-black/20">
+                                  <SelectTrigger>
                                   <SelectValue placeholder="واحد"/>
                                   </SelectTrigger>
                                   <SelectContent>
@@ -258,7 +258,7 @@ export default function NoteCreator() {
                 control={form.control}
                 name="deleteAfterFirstView"
                 render={({ field }) => (
-                    <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3 shadow-sm bg-black/20 mt-4">
+                    <FormItem className="flex flex-row items-center justify-between rounded-lg border border-black/5 dark:border-white/10 p-3 shadow-sm bg-black/5 dark:bg-white/5 mt-4">
                     <div className="space-y-0.5">
                         <FormLabel>تخریب خودکار</FormLabel>
                         <p className="text-sm text-muted-foreground">
