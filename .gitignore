@@ -30,6 +30,9 @@ yarn-debug.log*
 yarn-error.log*
 .pnpm-debug.log*
 
+/.data/quicknote.db
+./.data/quicknote.db
+
 # vercel
 .vercel
 
