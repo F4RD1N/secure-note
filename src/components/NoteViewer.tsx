@@ -79,6 +79,9 @@ export default function NoteViewer({ note }: NoteViewerProps) {
     await new Promise(resolve => setTimeout(resolve, 500)); // Simulate delay
     try {
       const content = decrypt({ content: note.content, iv: note.iv, salt: note.salt }, data.password);
+      if (!content) {
+        throw new Error('Decryption failed');
+      }
       setDecryptedContent(content);
     } catch (e) {
       setError('رمز عبور نامعتبر است. لطفاً دوباره تلاش کنید.');
@@ -113,7 +116,23 @@ export default function NoteViewer({ note }: NoteViewerProps) {
           </CardHeader>
           <CardContent>
             <div className="prose prose-invert prose-p:my-2 prose-headings:my-3 prose-ul:my-2 prose-blockquote:my-2 max-w-none bg-muted/50 p-4 rounded-md">
-                <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                <ReactMarkdown
+                    remarkPlugins={[remarkGfm]}
+                    components={{
+                        code({node, inline, className, children, ...props}) {
+                            const match = /language-(\w+)/.exec(className || '')
+                            return !inline ? (
+                                <code className={className} {...props}>
+                                    {children}
+                                </code>
+                            ) : (
+                                <code className="bg-background/70 text-primary font-mono text-sm rounded-sm px-1.5 py-0.5" {...props}>
+                                    {children}
+                                </code>
+                            )
+                        }
+                    }}
+                >
                     {decryptedContent}
                 </ReactMarkdown>
             </div>
