@@ -211,7 +211,7 @@ export default function NoteCreator() {
                     <FormItem>
                     <FormLabel>رمز عبور (اختیاری)</FormLabel>
                     <FormControl>
-                        <Input type="password" placeholder="از یادداشت خود محافظت کنید" {...field} />
+                        <Input type="password" placeholder="از یادداشت خود محافظت کنید" {...field} autoComplete="new-password" />
                     </FormControl>
                     <FormMessage />
                     </FormItem>

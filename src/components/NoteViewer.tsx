@@ -133,7 +133,7 @@ export default function NoteViewer({ note }: NoteViewerProps) {
                     <FormItem>
                       <FormLabel>رمز عبور</FormLabel>
                       <FormControl>
-                        <Input type="password" {...field} />
+                        <Input type="password" {...field} autoComplete="current-password" />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
