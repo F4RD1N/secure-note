@@ -279,7 +279,7 @@ export default function NoteCreator() {
         </Card>
 
 
-        <div className="sticky bottom-0 bg-gradient-to-t from-background via-background/90 to-transparent pt-12 pb-4 -mt-8 flex flex-col sm:flex-row gap-2">
+        <div className="sticky bottom-0 pt-6 pb-4 flex flex-col sm:flex-row gap-2">
           <Button type="submit" className="w-full" disabled={isSubmitting}>
             {isSubmitting ? (
               <>
