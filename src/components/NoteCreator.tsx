@@ -32,7 +32,6 @@ import {
 } from '@/components/ui/form';
 import { Copy, Loader2, Link as LinkIcon, Share2 } from 'lucide-react';
 import { nanoid } from 'nanoid';
-import { Separator } from '@/components/ui/separator';
 
 const formSchema = z.object({
   content: z.string().min(1, 'یادداشت نمی‌تواند خالی باشد.'),
@@ -199,93 +198,86 @@ export default function NoteCreator() {
           />
         </div>
 
-        <div className="space-y-6 pt-4">
-           <Separator />
-           <div className="space-y-2">
-              <h3 className="text-lg font-semibold tracking-tight">تنظیمات امنیتی</h3>
-              <p className="text-sm text-muted-foreground">
-                گزینه‌هایی برای محافظت و کنترل دسترسی به یادداشت شما.
-              </p>
-            </div>
-
-            <FormField
-              control={form.control}
-              name="password"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>رمز عبور (اختیاری)</FormLabel>
-                  <FormControl>
-                    <Input type="password" placeholder="از یادداشت خود محافظت کنید" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <FormField
-              control={form.control}
-              name="deleteAfterFirstView"
-              render={({ field }) => (
-                <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3 shadow-sm bg-background">
-                  <div className="space-y-0.5">
-                    <FormLabel>تخریب خودکار</FormLabel>
+        <Card className="my-4">
+            <CardContent className="p-4 space-y-6">
+                 <div className="space-y-2">
+                    <h3 className="text-lg font-semibold tracking-tight">تنظیمات</h3>
                     <p className="text-sm text-muted-foreground">
-                      یادداشت پس از اولین بازدید حذف شود.
+                        برای کنترل بیشتر، گزینه‌های زیر را تنظیم کنید.
                     </p>
-                  </div>
-                  <FormControl>
-                    <Switch
-                      checked={field.value}
-                      onCheckedChange={field.onChange}
-                    />
-                  </FormControl>
-                </FormItem>
-              )}
-            />
-
-           <div className="space-y-2">
-              <h3 className="text-lg font-semibold tracking-tight">تنظیمات انقضا</h3>
-              <p className="text-sm text-muted-foreground">
-                یادداشت چه زمانی منقضی و حذف شود.
-              </p>
-            </div>
-
-            <div className="grid grid-cols-2 gap-4">
-              <FormField
+                </div>
+                <FormField
                 control={form.control}
-                name="expireValue"
+                name="password"
                 render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>انقضا پس از</FormLabel>
+                    <FormItem>
+                    <FormLabel>رمز عبور (اختیاری)</FormLabel>
                     <FormControl>
-                      <Input type="number" placeholder="مثلاً ۲" {...field} />
+                        <Input type="password" placeholder="از یادداشت خود محافظت کنید" {...field} />
                     </FormControl>
-                  </FormItem>
+                    <FormMessage />
+                    </FormItem>
                 )}
-              />
-              <FormField
+                />
+
+                <div className="grid grid-cols-2 gap-4">
+                  <FormField
+                      control={form.control}
+                      name="expireValue"
+                      render={({ field }) => (
+                      <FormItem>
+                          <FormLabel>انقضا پس از</FormLabel>
+                          <FormControl>
+                          <Input type="number" placeholder="مثلاً ۲" {...field} />
+                          </FormControl>
+                      </FormItem>
+                      )}
+                  />
+                  <FormField
+                      control={form.control}
+                      name="expireUnit"
+                      render={({ field }) => (
+                      <FormItem className='flex flex-col justify-end'>
+                          <FormControl>
+                              <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                  <SelectTrigger>
+                                  <SelectValue placeholder="واحد"/>
+                                  </SelectTrigger>
+                                  <SelectContent>
+                                  <SelectItem value="minutes">دقیقه</SelectItem>
+                                  <SelectItem value="hours">ساعت</SelectItem>
+                                  <SelectItem value="days">روز</SelectItem>
+                                  </SelectContent>
+                              </Select>
+                          </FormControl>
+                      </FormItem>
+                      )}
+                  />
+                </div>
+                
+                <FormField
                 control={form.control}
-                name="expireUnit"
+                name="deleteAfterFirstView"
                 render={({ field }) => (
-                  <FormItem>
-                     <FormLabel className="opacity-0 hidden md:inline-block">واحد</FormLabel>
-                     <Select onValueChange={field.onChange} defaultValue={field.value}>
-                        <FormControl>
-                          <SelectTrigger>
-                            <SelectValue placeholder="واحد"/>
-                          </SelectTrigger>
-                        </FormControl>
-                        <SelectContent>
-                          <SelectItem value="minutes">دقیقه</SelectItem>
-                          <SelectItem value="hours">ساعت</SelectItem>
-                          <SelectItem value="days">روز</SelectItem>
-                        </SelectContent>
-                      </Select>
-                  </FormItem>
+                    <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3 shadow-sm bg-background mt-4">
+                    <div className="space-y-0.5">
+                        <FormLabel>تخریب خودکار</FormLabel>
+                        <p className="text-sm text-muted-foreground">
+                        یادداشت پس از اولین بازدید حذف شود.
+                        </p>
+                    </div>
+                    <FormControl>
+                        <Switch
+                          checked={field.value}
+                          onCheckedChange={field.onChange}
+                        />
+                    </FormControl>
+                    </FormItem>
                 )}
-              />
-            </div>
-        </div>
+                />
+
+            </CardContent>
+        </Card>
 
 
         <div className="sticky bottom-0 bg-background py-4 flex flex-col sm:flex-row gap-2">
