@@ -154,7 +154,7 @@ export default function NoteCreator() {
           </CardHeader>
           <CardContent className="space-y-6">
             <div className="flex justify-center">
-              <QRCode value={noteLink} size={160} bgColor="transparent" fgColor="hsl(var(--foreground))" className="p-2 bg-white/10 rounded-lg border border-white/20"/>
+              <QRCode value={noteLink} size={160} bgColor="transparent" fgColor="#FFFFFF" className="p-2 bg-white/10 rounded-lg border border-white/20"/>
             </div>
             <div className="flex items-center space-x-2 space-x-reverse">
               <Input value={noteLink} readOnly className="flex-1 text-left bg-black/20" dir="ltr" />
