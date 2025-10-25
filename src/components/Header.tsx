@@ -1,5 +1,4 @@
 import Link from 'next/link';
-import { ThemeToggle } from './ThemeToggle';
 
 export default function Header() {
   return (
@@ -10,9 +9,6 @@ export default function Header() {
             یادداشت سریع
           </h1>
         </Link>
-        <div className="absolute left-0">
-          <ThemeToggle />
-        </div>
       </div>
     </header>
   );
