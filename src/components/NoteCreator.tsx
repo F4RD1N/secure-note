@@ -62,97 +62,69 @@ const MarkdownIcon = () => (
 
 type MarkdownToolbarProps = {
   getValues: () => FormValues;
-  setValue: (name: keyof FormValues, value: any) => void;
+  setValue: (name: keyof FormValues, value: any, options?: { shouldValidate?: boolean; shouldDirty?: boolean; shouldTouch?: boolean }) => void;
   textareaRef: React.RefObject<HTMLTextAreaElement>;
 };
 
 const MarkdownToolbar = ({ getValues, setValue, textareaRef }: MarkdownToolbarProps) => {
-  const insertMarkdown = (syntax: string, placeholder: string) => {
-    if (!textareaRef.current) return;
+    const insertMarkdown = (syntaxStart: string, syntaxEnd: string = '', placeholder: string) => {
+        if (!textareaRef.current) return;
 
-    const textarea = textareaRef.current;
-    const start = textarea.selectionStart;
-    const end = textarea.selectionEnd;
-    const currentText = getValues().content || '';
-    const selectedText = currentText.substring(start, end);
+        const textarea = textareaRef.current;
+        const start = textarea.selectionStart;
+        const end = textarea.selectionEnd;
+        const currentText = getValues().content || '';
+        const selectedText = currentText.substring(start, end);
 
-    let textToInsert = '';
-    let cursorPosition = start;
+        const fullPlaceholder = selectedText || placeholder;
+        const textToInsert = `${syntaxStart}${fullPlaceholder}${syntaxEnd}`;
 
-    switch (syntax) {
-      case '# ':
-        textToInsert = `${currentText.substring(0, start)}# ${selectedText || placeholder}\n${currentText.substring(end)}`;
-        cursorPosition = start + 2;
-        break;
-      case '**':
-        textToInsert = `${currentText.substring(0, start)}**${selectedText || placeholder}**${currentText.substring(end)}`;
-        cursorPosition = start + 2;
-        if (!selectedText) cursorPosition += placeholder.length;
-        break;
-      case '*':
-        textToInsert = `${currentText.substring(0, start)}*${selectedText || placeholder}*${currentText.substring(end)}`;
-        cursorPosition = start + 1;
-        if (!selectedText) cursorPosition += placeholder.length;
-        break;
-      case '> ':
-        textToInsert = `${currentText.substring(0, start)}> ${selectedText || placeholder}\n${currentText.substring(end)}`;
-        cursorPosition = start + 2;
-        break;
-      case '- ':
-        textToInsert = `${currentText.substring(0, start)}- ${selectedText || placeholder}\n${currentText.substring(end)}`;
-        cursorPosition = start + 2;
-        break;
-      case '`':
-        textToInsert = `${currentText.substring(0, start)}\`${selectedText || placeholder}\`${currentText.substring(end)}`;
-        cursorPosition = start + 1;
-        if (!selectedText) cursorPosition += placeholder.length;
-        break;
-      case '[':
-        textToInsert = `${currentText.substring(0, start)}[${selectedText || 'متن لینک'}](https://...)${currentText.substring(end)}`;
-        cursorPosition = start + 1;
-        break;
-      default:
-        textToInsert = `${currentText.substring(0, start)}${syntax}${selectedText || placeholder}${syntax.split('').reverse().join('')}${currentText.substring(end)}`;
-        cursorPosition = start + syntax.length;
-    }
+        const newText = `${currentText.substring(0, start)}${textToInsert}${currentText.substring(end)}`;
+        setValue('content', newText, { shouldDirty: true });
 
-    setValue('content', textToInsert);
-    
-    setTimeout(() => {
         textarea.focus();
-        const finalCursorPosition = selectedText ? start + (textToInsert.length - currentText.length) - (currentText.substring(end).length - currentText.substring(end).length) : cursorPosition;
-        textarea.setSelectionRange(finalCursorPosition, finalCursorPosition);
-    }, 0);
-  };
-  
-  const markdownItems = [
-    { label: 'سرفصل', icon: Heading1, action: () => insertMarkdown('# ', 'سرفصل') },
-    { label: 'ضخیم', icon: Bold, action: () => insertMarkdown('**', 'متن ضخیم') },
-    { label: 'ایتالیک', icon: Italic, action: () => insertMarkdown('*', 'متن ایتالیک') },
-    { label: 'نقل‌قول', icon: Quote, action: () => insertMarkdown('> ', 'نقل‌قول') },
-    { label: 'لیست', icon: List, action: () => insertMarkdown('- ', 'آیتم لیست') },
-    { label: 'کد', icon: Code, action: () => insertMarkdown('`', 'کد') },
-    { label: 'لینک', icon: LinkIconMD, action: () => insertMarkdown('[', 'https://...') },
-  ]
 
-  return (
-    <DropdownMenu>
-      <DropdownMenuTrigger asChild>
-        <Button variant="ghost" size="icon" className="h-7 w-7 absolute top-3 left-3 z-10">
-            <MarkdownIcon />
-            <span className="sr-only">ابزار مارک‌داون</span>
-        </Button>
-      </DropdownMenuTrigger>
-      <DropdownMenuContent align="start" className="w-40 border-white/10 bg-black/50 backdrop-blur-sm">
-        {markdownItems.map(({label, icon: Icon, action}) => (
-            <DropdownMenuItem key={label} onSelect={(e) => {e.preventDefault(); action()}}>
-                <Icon className="h-4 w-4 ml-2" />
-                <span>{label}</span>
-            </DropdownMenuItem>
-        ))}
-      </DropdownMenuContent>
-    </DropdownMenu>
-  );
+        setTimeout(() => {
+            textarea.focus();
+            if (selectedText) {
+                // If text was selected, place cursor after the inserted syntax
+                textarea.setSelectionRange(start + textToInsert.length, start + textToInsert.length);
+            } else {
+                // If no text was selected, place cursor inside the syntax
+                const cursorPos = start + syntaxStart.length;
+                textarea.setSelectionRange(cursorPos, cursorPos);
+            }
+        }, 10);
+    };
+
+    const markdownItems = [
+        { label: 'سرفصل', icon: Heading1, action: () => insertMarkdown('# ', '', 'سرفصل') },
+        { label: 'ضخیم', icon: Bold, action: () => insertMarkdown('**', '**', 'متن ضخیم') },
+        { label: 'ایتالیک', icon: Italic, action: () => insertMarkdown('*', '*', 'متن ایتالیک') },
+        { label: 'نقل‌قول', icon: Quote, action: () => insertMarkdown('> ', '', 'نقل‌قول') },
+        { label: 'لیست', icon: List, action: () => insertMarkdown('- ', '', 'آیتم لیست') },
+        { label: 'کد', icon: Code, action: () => insertMarkdown('`', '`', 'کد') },
+        { label: 'لینک', icon: LinkIconMD, action: () => insertMarkdown('[', '](https://...)', 'متن لینک') },
+    ]
+
+    return (
+        <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+                <Button variant="ghost" size="icon" className="h-7 w-7 absolute top-3 left-3 z-10">
+                    <MarkdownIcon />
+                    <span className="sr-only">ابزار مارک‌داون</span>
+                </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="w-40 border-white/10 bg-black/50 backdrop-blur-sm">
+                {markdownItems.map(({ label, icon: Icon, action }) => (
+                    <DropdownMenuItem key={label} onSelect={(e) => { e.preventDefault(); action() }}>
+                        <Icon className="h-4 w-4 ml-2" />
+                        <span>{label}</span>
+                    </DropdownMenuItem>
+                ))}
+            </DropdownMenuContent>
+        </DropdownMenu>
+    );
 };
 
 export default function NoteCreator() {
@@ -269,7 +241,7 @@ export default function NoteCreator() {
           </CardHeader>
           <CardContent className="space-y-6">
             <div className="flex justify-center">
-                <QRCode value={noteLink} size={160} bgColor="transparent" fgColor="#FFFFFF" className="p-2 bg-white/10 rounded-lg border border-white/20"/>
+                <QRCode value={noteLink} size={160} bgColor="#00000000" fgColor="#FFFFFF" className="p-2 bg-white/10 rounded-lg border border-white/20"/>
             </div>
             <div className="flex items-center space-x-2 space-x-reverse">
               <Input value={noteLink} readOnly className="flex-1 text-left bg-black/20" dir="ltr" />
