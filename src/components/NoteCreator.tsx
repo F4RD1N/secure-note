@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useRef, type ElementRef } from 'react';
 import { motion } from 'framer-motion';
 import QRCode from 'qrcode.react';
 import { useForm } from 'react-hook-form';
@@ -22,12 +22,11 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog"
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
 import { Switch } from '@/components/ui/switch';
 import {
   Form,
@@ -37,7 +36,7 @@ import {
   FormLabel,
   FormMessage,
 } from '@/components/ui/form';
-import { Copy, Loader2, Link as LinkIcon, Share2, HelpCircle } from 'lucide-react';
+import { Copy, Loader2, Link as LinkIcon, Share2, Bold, Italic, Heading1, Link as LinkIconMD, Quote, List, Code } from 'lucide-react';
 import { nanoid } from 'nanoid';
 
 const formSchema = z.object({
@@ -51,85 +50,110 @@ const formSchema = z.object({
 
 type FormValues = z.infer<typeof formSchema>;
 
-const MarkdownGuide = () => (
-    <Dialog>
-      <DialogTrigger asChild>
+const MarkdownIcon = () => (
+    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-5 w-5">
+        <path d="M18 10h-3V7h3v3Z"/>
+        <path d="M9 10h6"/>
+        <path d="M18 14h-3v3h3v-3Z"/>
+        <path d="M6 7v10"/>
+        <path d="M6 7l3 3-3 3"/>
+    </svg>
+)
+
+const MarkdownToolbar = ({ control, textareaRef }: { control: any, textareaRef: React.RefObject<HTMLTextAreaElement> }) => {
+  const { getValues, setValue } = useForm({ control });
+
+  const insertMarkdown = (syntax: string, placeholder: string) => {
+    if (!textareaRef.current) return;
+
+    const textarea = textareaRef.current;
+    const start = textarea.selectionStart;
+    const end = textarea.selectionEnd;
+    const currentText = getValues('content') || '';
+    const selectedText = currentText.substring(start, end);
+
+    const newText = `${currentText.substring(0, start)}${syntax}${selectedText || placeholder}${syntax.endsWith(')') ? '' : syntax.split('').reverse().join('')}${currentText.substring(end)}`;
+    
+    // For things like links and quotes that are block-level
+    let textToInsert = '';
+    let cursorPosition = start;
+
+    switch (syntax) {
+      case '# ':
+        textToInsert = `${currentText.substring(0, start)}# ${selectedText || placeholder}\n${currentText.substring(end)}`;
+        cursorPosition = start + 2;
+        break;
+      case '**':
+        textToInsert = `${currentText.substring(0, start)}**${selectedText || placeholder}**${currentText.substring(end)}`;
+        cursorPosition = start + 2 + (selectedText || placeholder).length;
+        break;
+      case '*':
+        textToInsert = `${currentText.substring(0, start)}*${selectedText || placeholder}*${currentText.substring(end)}`;
+        cursorPosition = start + 1 + (selectedText || placeholder).length;
+        break;
+      case '> ':
+        textToInsert = `${currentText.substring(0, start)}> ${selectedText || placeholder}\n${currentText.substring(end)}`;
+        cursorPosition = start + 2;
+        break;
+      case '- ':
+        textToInsert = `${currentText.substring(0, start)}- ${selectedText || placeholder}\n${currentText.substring(end)}`;
+        cursorPosition = start + 2;
+        break;
+      case '`':
+        textToInsert = `${currentText.substring(0, start)}\`${selectedText || placeholder}\`${currentText.substring(end)}`;
+        cursorPosition = start + 1 + (selectedText || placeholder).length;
+        break;
+      case '[':
+        textToInsert = `${currentText.substring(0, start)}[${selectedText || 'متن لینک'}](https://...)${currentText.substring(end)}`;
+        cursorPosition = start + 1;
+        break;
+      default:
+        textToInsert = newText;
+        cursorPosition = start + syntax.length;
+    }
+
+    setValue('content', textToInsert);
+    
+    setTimeout(() => {
+        textarea.focus();
+        textarea.setSelectionRange(cursorPosition, cursorPosition + (selectedText.length || placeholder.length));
+    }, 0);
+  };
+  
+  const markdownItems = [
+    { label: 'سرفصل', icon: Heading1, action: () => insertMarkdown('# ', 'سرفصل') },
+    { label: 'ضخیم', icon: Bold, action: () => insertMarkdown('**', 'متن ضخیم') },
+    { label: 'ایتالیک', icon: Italic, action: () => insertMarkdown('*', 'متن ایتالیک') },
+    { label: 'نقل‌قول', icon: Quote, action: () => insertMarkdown('> ', 'نقل‌قول') },
+    { label: 'لیست', icon: List, action: () => insertMarkdown('- ', 'آیتم لیست') },
+    { label: 'کد', icon: Code, action: () => insertMarkdown('`', 'کد') },
+    { label: 'لینک', icon: LinkIconMD, action: () => insertMarkdown('[', 'https://...') },
+  ]
+
+  return (
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>
         <Button variant="ghost" size="icon" className="h-7 w-7 absolute top-3 left-3 z-10">
-            <HelpCircle className="h-5 w-5" />
-            <span className="sr-only">راهنمای مارک‌داون</span>
+            <MarkdownIcon />
+            <span className="sr-only">ابزار مارک‌داون</span>
         </Button>
-      </DialogTrigger>
-      <DialogContent className="sm:max-w-2xl border-white/10 bg-white/5 backdrop-blur-sm">
-        <DialogHeader>
-          <DialogTitle>راهنمای سریع مارک‌داون</DialogTitle>
-        </DialogHeader>
-        <div className="prose prose-sm prose-invert max-w-none mt-4 max-h-[60vh] overflow-y-auto">
-          <table>
-            <thead>
-              <tr>
-                <th>عنصر</th>
-                <th>سینتکس مارک‌داون</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr>
-                <td>سرفصل ۱</td>
-                <td><code># سرفصل ۱</code></td>
-              </tr>
-              <tr>
-                <td>سرفصل ۲</td>
-                <td><code>## سرفصل ۲</code></td>
-              </tr>
-              <tr>
-                <td>لینک</td>
-                <td><code>[عنوان لینک](https://example.com)</code></td>
-              </tr>
-              <tr>
-                <td><strong>ضخیم</strong></td>
-                <td><code>**متن ضخیم**</code></td>
-              </tr>
-              <tr>
-                <td><em>ایتالیک</em></td>
-                <td><code>*متن ایتالیک*</code></td>
-              </tr>
-              <tr>
-                <td>نقل‌قول</td>
-                <td><code>&gt; نقل‌قول</code></td>
-              </tr>
-              <tr>
-                <td>لیست شماره‌دار</td>
-                <td><pre><code>1. آیتم اول
-2. آیتم دوم</code></pre></td>
-              </tr>
-              <tr>
-                <td>لیست بدون ترتیب</td>
-                <td><pre><code>- آیتم اول
-- آیتم دوم</code></pre></td>
-              </tr>
-              <tr>
-                <td>کد (inline)</td>
-                <td><code>`کد`</code></td>
-              </tr>
-               <tr>
-                <td>بلوک کد</td>
-                <td><pre><code>```javascript
-console.log("hello");
-```</code></pre></td>
-              </tr>
-              <tr>
-                <td>خط افقی</td>
-                <td><code>---</code></td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-      </DialogContent>
-    </Dialog>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent align="end" className="w-48 border-white/10 bg-black/50 backdrop-blur-sm">
+        {markdownItems.map(({label, icon: Icon, action}) => (
+            <DropdownMenuItem key={label} onSelect={(e) => {e.preventDefault(); action()}}>
+                <Icon className="h-4 w-4 mr-2" />
+                <span>{label}</span>
+            </DropdownMenuItem>
+        ))}
+      </DropdownMenuContent>
+    </DropdownMenu>
   );
+};
 
 export default function NoteCreator() {
   const [noteLink, setNoteLink] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const textareaRef = useRef<ElementRef<'textarea'>>(null);
   const { toast } = useToast();
 
   const form = useForm<FormValues>({
@@ -237,7 +261,7 @@ export default function NoteCreator() {
           </CardHeader>
           <CardContent className="space-y-6">
             <div className="flex justify-center">
-                <QRCode value={noteLink} size={160} bgColor="#FFFFFF00" fgColor="#FFFFFF" className="p-2 bg-white/10 rounded-lg border border-white/20"/>
+                <QRCode value={noteLink} size={160} bgColor="transparent" fgColor="#FFFFFF" className="p-2 bg-white/10 rounded-lg border border-white/20"/>
             </div>
             <div className="flex items-center space-x-2 space-x-reverse">
               <Input value={noteLink} readOnly className="flex-1 text-left bg-black/20" dir="ltr" />
@@ -263,7 +287,7 @@ export default function NoteCreator() {
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="flex flex-col h-full">
         <Card className="flex-1 flex flex-col relative">
-            <MarkdownGuide />
+            <MarkdownToolbar control={form.control} textareaRef={textareaRef} />
             <CardContent className="flex-1 flex flex-col p-4">
                <FormField
                   control={form.control}
@@ -272,9 +296,10 @@ export default function NoteCreator() {
                   <FormItem className="flex-1 flex flex-col">
                      <FormControl className="flex-1">
                         <Textarea
-                        placeholder="یادداشت محرمانه خود را اینجا تایپ کنید... (از مارک‌داون پشتیبانی می‌شود)"
-                        className="h-full resize-none text-base border-0 focus-visible:ring-0 focus-visible:ring-offset-0 p-0 shadow-none bg-transparent"
-                        {...field}
+                          {...field}
+                          ref={textareaRef}
+                          placeholder="یادداشت محرمانه خود را اینجا تایپ کنید... (از مارک‌داون پشتیبانی می‌شود)"
+                          className="h-full resize-none text-base border-0 focus-visible:ring-0 focus-visible:ring-offset-0 p-0 shadow-none bg-transparent"
                         />
                      </FormControl>
                      <FormMessage className="pt-2"/>
@@ -378,3 +403,5 @@ export default function NoteCreator() {
     </Form>
   );
 }
+
+    
