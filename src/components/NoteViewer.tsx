@@ -8,6 +8,7 @@ import { motion } from 'framer-motion';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import { decrypt } from '@/lib/crypto';
+import { confirmNoteView } from '@/lib/actions';
 import type { Note } from '@/lib/types';
 import { formatDistanceToNow } from 'date-fns';
 import { faIR } from 'date-fns/locale';
@@ -32,6 +33,7 @@ export default function NoteViewer({ note }: NoteViewerProps) {
   const [error, setError] = useState<string | null>(null);
   const [isDecrypting, setIsDecrypting] = useState(false);
   const [timeLeft, setTimeLeft] = useState<string | null>(null);
+  const [isReady, setIsReady] = useState(false);
 
   const form = useForm({
     resolver: zodResolver(passwordSchema),
@@ -39,6 +41,16 @@ export default function NoteViewer({ note }: NoteViewerProps) {
       password: '',
     }
   });
+
+  // Effect to handle view confirmation
+  useEffect(() => {
+    if (decryptedContent) {
+      if (note.views_remaining !== null) {
+        confirmNoteView(note.id);
+      }
+    }
+  }, [decryptedContent, note.id, note.views_remaining]);
+
 
   useEffect(() => {
     if (note.expires_at) {
@@ -57,20 +69,30 @@ export default function NoteViewer({ note }: NoteViewerProps) {
   }, [note.expires_at]);
 
   useEffect(() => {
-    if (!note.has_password) {
-      try {
-        const key = window.location.hash.substring(1);
-        if (!key) {
-          setError('کلید رمزگشایی در آدرس یافت نشد.');
-          return;
+    const decryptOnLoad = () => {
+        if (!note.has_password) {
+            try {
+                const key = window.location.hash.substring(1);
+                if (!key) {
+                setError('کلید رمزگشایی در آدرس یافت نشد.');
+                return;
+                }
+                const content = decrypt({ content: note.content, iv: note.iv, salt: note.salt }, key);
+                setDecryptedContent(content);
+            } catch (e) {
+                setError('رمزگشایی یادداشت ناموفق بود. ممکن است لینک خراب باشد.');
+                console.error(e);
+            }
         }
-        const content = decrypt({ content: note.content, iv: note.iv, salt: note.salt }, key);
-        setDecryptedContent(content);
-      } catch (e) {
-        setError('رمزگشایی یادداشت ناموفق بود. ممکن است لینک خراب باشد.');
-        console.error(e);
-      }
-    }
+    };
+    
+    // Gives a moment for the initial loading spinner to show
+    const timer = setTimeout(() => {
+      decryptOnLoad();
+      setIsReady(true);
+    }, 500);
+
+    return () => clearTimeout(timer);
   }, [note]);
 
   const handlePasswordSubmit = async (data: { password: string }) => {
@@ -92,6 +114,15 @@ export default function NoteViewer({ note }: NoteViewerProps) {
     }
   };
 
+  if (!isReady) {
+    return (
+       <div className="flex flex-col items-center justify-center text-center space-y-4 w-full h-full">
+         <Loader2 className="h-8 w-8 animate-spin text-primary" />
+         <p className="text-muted-foreground">در حال بارگذاری یادداشت...</p>
+      </div>
+    );
+  }
+
   if (decryptedContent) {
     return (
       <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="w-full">
@@ -103,7 +134,7 @@ export default function NoteViewer({ note }: NoteViewerProps) {
                 <span className="flex items-center gap-1.5">
                   <Eye className="w-4 h-4" />
                   {note.views_remaining === 1
-                    ? 'پس از مشاهده حذف خواهد شد'
+                    ? 'پس از این بازدید حذف خواهد شد'
                     : `${note.views_remaining} بازدید باقی مانده`}
                 </span>
               )}

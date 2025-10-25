@@ -52,7 +52,7 @@ export async function createNote(payload: CreateNotePayload) {
 }
 
 export async function getNote(id: string): Promise<Note | null> {
-  // Run cleanup on each fetch
+  // Run cleanup on each fetch, this will remove expired notes.
   cleanupNotes();
 
   try {
@@ -62,25 +62,15 @@ export async function getNote(id: string): Promise<Note | null> {
       return null;
     }
 
-    // Handle view-based expiration
-    if (note.views_remaining !== null) {
-      if (note.views_remaining > 0) {
-        // Decrement views
-        db.prepare('UPDATE notes SET views_remaining = views_remaining - 1 WHERE id = ?').run(id);
-        
-        // If it was the last view, it will be cleaned up on the next request
-        if (note.views_remaining === 1) {
-            // we can return the note this time, but next time it will be gone
-        }
-      } else {
-        // This case should be handled by cleanup, but as a fallback:
-        return null;
-      }
-    }
-
-    // Handle time-based expiration
+    // Time-based expiration check
     if (note.expires_at !== null && note.expires_at < Date.now()) {
       return null;
+    }
+    
+    // View-based expiration check (if it's already 0)
+    // The decrement now happens on the client after successful view
+    if (note.views_remaining !== null && note.views_remaining <= 0) {
+        return null;
     }
     
     return note;
@@ -88,4 +78,16 @@ export async function getNote(id: string): Promise<Note | null> {
     console.error(`Failed to get note ${id}:`, error);
     return null;
   }
+}
+
+export async function confirmNoteView(id: string) {
+    try {
+        const note = db.prepare('SELECT views_remaining FROM notes WHERE id = ?').get(id) as Pick<Note, 'views_remaining'> | undefined;
+
+        if (note && note.views_remaining !== null) {
+            db.prepare('UPDATE notes SET views_remaining = views_remaining - 1 WHERE id = ?').run(id);
+        }
+    } catch (error) {
+        console.error(`Failed to update view count for note ${id}:`, error);
+    }
 }
