@@ -86,11 +86,13 @@ const MarkdownToolbar = ({ getValues, setValue, textareaRef }: MarkdownToolbarPr
         break;
       case '**':
         textToInsert = `${currentText.substring(0, start)}**${selectedText || placeholder}**${currentText.substring(end)}`;
-        cursorPosition = start + 2 + (selectedText || placeholder).length;
+        cursorPosition = start + 2;
+        if (!selectedText) cursorPosition += placeholder.length;
         break;
       case '*':
         textToInsert = `${currentText.substring(0, start)}*${selectedText || placeholder}*${currentText.substring(end)}`;
-        cursorPosition = start + 1 + (selectedText || placeholder).length;
+        cursorPosition = start + 1;
+        if (!selectedText) cursorPosition += placeholder.length;
         break;
       case '> ':
         textToInsert = `${currentText.substring(0, start)}> ${selectedText || placeholder}\n${currentText.substring(end)}`;
@@ -102,7 +104,8 @@ const MarkdownToolbar = ({ getValues, setValue, textareaRef }: MarkdownToolbarPr
         break;
       case '`':
         textToInsert = `${currentText.substring(0, start)}\`${selectedText || placeholder}\`${currentText.substring(end)}`;
-        cursorPosition = start + 1 + (selectedText || placeholder).length;
+        cursorPosition = start + 1;
+        if (!selectedText) cursorPosition += placeholder.length;
         break;
       case '[':
         textToInsert = `${currentText.substring(0, start)}[${selectedText || 'متن لینک'}](https://...)${currentText.substring(end)}`;
@@ -117,7 +120,8 @@ const MarkdownToolbar = ({ getValues, setValue, textareaRef }: MarkdownToolbarPr
     
     setTimeout(() => {
         textarea.focus();
-        textarea.setSelectionRange(cursorPosition, cursorPosition + (selectedText.length || placeholder.length));
+        const finalCursorPosition = selectedText ? start + (textToInsert.length - currentText.length) - (currentText.substring(end).length - currentText.substring(end).length) : cursorPosition;
+        textarea.setSelectionRange(finalCursorPosition, finalCursorPosition);
     }, 0);
   };
   
@@ -139,10 +143,10 @@ const MarkdownToolbar = ({ getValues, setValue, textareaRef }: MarkdownToolbarPr
             <span className="sr-only">ابزار مارک‌داون</span>
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="end" className="w-48 border-white/10 bg-black/50 backdrop-blur-sm">
+      <DropdownMenuContent align="start" className="w-40 border-white/10 bg-black/50 backdrop-blur-sm">
         {markdownItems.map(({label, icon: Icon, action}) => (
             <DropdownMenuItem key={label} onSelect={(e) => {e.preventDefault(); action()}}>
-                <Icon className="h-4 w-4 mr-2" />
+                <Icon className="h-4 w-4 ml-2" />
                 <span>{label}</span>
             </DropdownMenuItem>
         ))}
@@ -166,6 +170,9 @@ export default function NoteCreator() {
       deleteAfterFirstView: false,
     },
   });
+  
+  const { getValues, setValue, control, handleSubmit, reset } = form;
+
 
   const onSubmit = async (data: FormValues) => {
     setIsSubmitting(true);
@@ -274,7 +281,7 @@ export default function NoteCreator() {
                 <Button onClick={shareLink} className="w-full">
                     <Share2 className="mr-2 h-4 w-4" /> اشتراک‌گذاری لینک
                 </Button>
-                <Button variant="secondary" onClick={() => { setNoteLink(null); form.reset(); }} className="w-full">
+                <Button variant="secondary" onClick={() => { setNoteLink(null); reset(); }} className="w-full">
                   ایجاد یادداشت دیگر
                 </Button>
             </div>
@@ -286,12 +293,12 @@ export default function NoteCreator() {
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="flex flex-col h-full">
+      <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col h-full">
         <Card className="flex-1 flex flex-col relative">
-            <MarkdownToolbar getValues={form.getValues} setValue={form.setValue} textareaRef={textareaRef} />
+            <MarkdownToolbar getValues={getValues} setValue={setValue} textareaRef={textareaRef} />
             <CardContent className="flex-1 flex flex-col p-4">
                <FormField
-                  control={form.control}
+                  control={control}
                   name="content"
                   render={({ field }) => (
                   <FormItem className="flex-1 flex flex-col">
@@ -315,7 +322,7 @@ export default function NoteCreator() {
                     <h3 className="text-base font-medium tracking-tight">تنظیمات</h3>
                 </div>
                 <FormField
-                control={form.control}
+                control={control}
                 name="password"
                 render={({ field }) => (
                     <FormItem>
@@ -330,7 +337,7 @@ export default function NoteCreator() {
 
                 <div className="grid grid-cols-2 gap-4 items-end">
                   <FormField
-                      control={form.control}
+                      control={control}
                       name="expireValue"
                       render={({ field }) => (
                       <FormItem>
@@ -342,7 +349,7 @@ export default function NoteCreator() {
                       )}
                   />
                   <FormField
-                      control={form.control}
+                      control={control}
                       name="expireUnit"
                       render={({ field }) => (
                       <FormItem>
@@ -365,7 +372,7 @@ export default function NoteCreator() {
                 </div>
                 
                 <FormField
-                control={form.control}
+                control={control}
                 name="deleteAfterFirstView"
                 render={({ field }) => (
                     <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3 shadow-sm bg-background/20 mt-4">
