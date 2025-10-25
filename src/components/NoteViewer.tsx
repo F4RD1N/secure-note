@@ -96,7 +96,10 @@ export default function NoteViewer({ note }: NoteViewerProps) {
             <div className="text-sm text-muted-foreground flex flex-wrap gap-x-4 gap-y-1 pt-2">
               {note.views_remaining !== null && (
                 <span className="flex items-center gap-1.5">
-                  <Eye className="w-4 h-4" /> {note.views_remaining} بازدید باقی مانده
+                  <Eye className="w-4 h-4" />
+                  {note.views_remaining === 1
+                    ? 'پس از مشاهده حذف خواهد شد'
+                    : `${note.views_remaining} بازدید باقی مانده`}
                 </span>
               )}
               {timeLeft !== null && (
