@@ -59,7 +59,7 @@ const MarkdownGuide = () => (
             <span className="sr-only">راهنمای مارک‌داون</span>
         </Button>
       </DialogTrigger>
-      <DialogContent className="sm:max-w-2xl border-white/10 bg-white/5 backdrop-blur-lg">
+      <DialogContent className="sm:max-w-2xl border-white/10 bg-white/5 backdrop-blur-sm">
         <DialogHeader>
           <DialogTitle>راهنمای سریع مارک‌داون</DialogTitle>
         </DialogHeader>
