@@ -4,7 +4,6 @@ import { redirect } from 'next/navigation';
 import { nanoid } from 'nanoid';
 import { initDb } from './db';
 import type { Note } from './types';
-import { noteDeletionEventTool } from '@/ai/flows/note-deletion-event-tool';
 
 const db = initDb();
 
@@ -38,8 +37,6 @@ export async function createNote(payload: CreateNotePayload) {
     const now = Date.now();
     const { content, iv, salt, hasPassword, expiresAt, viewsRemaining } = payload;
     
-    const hasSettings = expiresAt !== null || viewsRemaining !== null;
-
     const stmt = db.prepare(`
       INSERT INTO notes (id, content, iv, salt, has_password, expires_at, views_remaining, created_at)
       VALUES (?, ?, ?, ?, ?, ?, ?, ?)
@@ -47,11 +44,6 @@ export async function createNote(payload: CreateNotePayload) {
 
     stmt.run(id, content, iv, salt, hasPassword ? 1 : 0, expiresAt, viewsRemaining, now);
     
-    // Trigger GenAI tool if settings are applied
-    if (hasSettings) {
-        await noteDeletionEventTool({ noteId: id });
-    }
-
     return { id };
   } catch (error) {
     console.error('Failed to create note:', error);
