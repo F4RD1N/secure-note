@@ -33,6 +33,9 @@ export default function NoteViewer({ note }: NoteViewerProps) {
 
   const form = useForm({
     resolver: zodResolver(passwordSchema),
+    defaultValues: {
+      password: '',
+    }
   });
 
   useEffect(() => {

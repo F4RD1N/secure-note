@@ -1,6 +1,5 @@
 import Link from 'next/link';
 import { Zap } from 'lucide-react';
-import { ThemeToggle } from './ThemeToggle';
 
 export default function Header() {
   return (
@@ -12,7 +11,6 @@ export default function Header() {
             یادداشت سریع
           </h1>
         </Link>
-        <ThemeToggle />
       </div>
     </header>
   );
