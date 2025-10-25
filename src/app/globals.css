@@ -8,32 +8,32 @@ body {
 
 @layer base {
   :root {
-    --background: 224 71.4% 4.1%;
-    --foreground: 210 20% 98%;
-    
-    --card: 216 34% 17%;
-    --card-foreground: 210 20% 98%;
-    
-    --popover: 224 71.4% 4.1%;
-    --popover-foreground: 210 20% 98%;
-    
+    --background: 0 0% 100%;
+    --foreground: 224 71.4% 4.1%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 224 71.4% 4.1%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 224 71.4% 4.1%;
+
     --primary: 217 91.2% 59.8%;
     --primary-foreground: 210 20% 98%;
-    
-    --secondary: 215 27.9% 16.9%;
-    --secondary-foreground: 210 20% 98%;
-    
-    --muted: 215 27.9% 16.9%;
-    --muted-foreground: 217.9 10.6% 64.9%;
-    
-    --accent: 215 27.9% 16.9%;
-    --accent-foreground: 210 20% 98%;
-    
-    --destructive: 45 93% 47%;
-    --destructive-foreground: 45 93% 98%;
 
-    --border: 215 20.2% 34.1%;
-    --input: 215 20.2% 34.1%;
+    --secondary: 220 14.3% 95.9%;
+    --secondary-foreground: 222.2 47.4% 11.2%;
+
+    --muted: 220 14.3% 95.9%;
+    --muted-foreground: 220 8.9% 46.1%;
+
+    --accent: 220 14.3% 95.9%;
+    --accent-foreground: 222.2 47.4% 11.2%;
+
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 210 20% 98%;
+
+    --border: 220 13% 91%;
+    --input: 220 13% 91%;
     --ring: 217 91.2% 59.8%;
     
     --chart-1: 12 76% 61%;
@@ -87,5 +87,11 @@ body {
   body {
     @apply bg-background text-foreground;
     background-image: linear-gradient(135deg, hsl(210, 80%, 25%), hsl(260, 80%, 15%));
+  }
+  .dark body {
+    background-image: linear-gradient(135deg, hsl(210, 80%, 25%), hsl(260, 80%, 15%));
+  }
+  .light body {
+    background-image: linear-gradient(135deg, hsl(210, 80%, 95%), hsl(260, 80%, 90%));
   }
 }

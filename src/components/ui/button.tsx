@@ -5,17 +5,17 @@ import { cva, type VariantProps } from "class-variance-authority"
 import { cn } from "@/lib/utils"
 
 const buttonVariants = cva(
-  "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0",
+  "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-0 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0",
   {
     variants: {
       variant: {
-        default: "border border-white/10 bg-white/10 text-primary-foreground shadow-2xl backdrop-blur-lg hover:bg-white/20",
+        default: "border border-black/10 dark:border-white/10 bg-white/30 dark:bg-white/10 text-primary-foreground shadow-2xl backdrop-blur-lg hover:bg-white/20",
         destructive:
           "bg-destructive text-destructive-foreground hover:bg-destructive/90",
         outline:
-          "border border-white/10 bg-white/10 text-primary-foreground shadow-2xl backdrop-blur-lg hover:bg-white/20",
+          "border border-black/10 dark:border-white/10 bg-white/30 dark:bg-white/10 text-foreground dark:text-primary-foreground shadow-2xl backdrop-blur-lg hover:bg-white/20",
         secondary:
-          "border border-white/10 bg-white/5 text-secondary-foreground shadow-xl backdrop-blur-lg hover:bg-white/10",
+          "border border-black/10 dark:border-white/10 bg-white/10 dark:bg-white/5 text-secondary-foreground shadow-xl backdrop-blur-lg hover:bg-white/10",
         ghost: "hover:bg-accent hover:text-accent-foreground",
         link: "text-primary underline-offset-4 hover:underline",
       },

@@ -3,6 +3,7 @@ import './globals.css';
 import { Toaster } from '@/components/ui/toaster';
 import Header from '@/components/Header';
 import { cn } from '@/lib/utils';
+import { ThemeProvider } from '@/components/theme-provider';
 
 export const metadata: Metadata = {
   title: 'یادداشت سریع',
@@ -22,7 +23,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="fa" dir="rtl" className="dark" style={{colorScheme: "dark"}} suppressHydrationWarning>
+    <html lang="fa" dir="rtl" suppressHydrationWarning>
       <head>
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
@@ -32,13 +33,20 @@ export default function RootLayout({
         <meta name="theme-color" content="#FFFFFF" media="(prefers-color-scheme: light)" />
       </head>
       <body className={cn('font-body antialiased min-h-screen flex flex-col bg-transparent')}>
-        <Header />
-        <main className="flex flex-1 flex-col items-center justify-start p-4 md:p-6">
-          <div className="w-full max-w-md flex-1 flex flex-col">
-            {children}
-          </div>
-        </main>
-        <Toaster />
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="dark"
+          enableSystem
+          disableTransitionOnChange
+        >
+          <Header />
+          <main className="flex flex-1 flex-col items-center justify-start p-4 md:p-6">
+            <div className="w-full max-w-md flex-1 flex flex-col">
+              {children}
+            </div>
+          </main>
+          <Toaster />
+        </ThemeProvider>
       </body>
     </html>
   );
