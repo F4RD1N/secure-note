@@ -21,6 +21,13 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog"
 import { Switch } from '@/components/ui/switch';
 import {
   Form,
@@ -30,7 +37,7 @@ import {
   FormLabel,
   FormMessage,
 } from '@/components/ui/form';
-import { Copy, Loader2, Link as LinkIcon, Share2 } from 'lucide-react';
+import { Copy, Loader2, Link as LinkIcon, Share2, HelpCircle } from 'lucide-react';
 import { nanoid } from 'nanoid';
 
 const formSchema = z.object({
@@ -43,6 +50,82 @@ const formSchema = z.object({
 });
 
 type FormValues = z.infer<typeof formSchema>;
+
+const MarkdownGuide = () => (
+    <Dialog>
+      <DialogTrigger asChild>
+        <Button variant="ghost" size="icon" className="h-7 w-7 absolute top-2 right-2">
+            <HelpCircle className="h-5 w-5" />
+            <span className="sr-only">راهنمای مارک‌داون</span>
+        </Button>
+      </DialogTrigger>
+      <DialogContent className="sm:max-w-2xl">
+        <DialogHeader>
+          <DialogTitle>راهنمای سریع مارک‌داون</DialogTitle>
+        </DialogHeader>
+        <div className="prose prose-sm prose-invert max-w-none mt-4 max-h-[60vh] overflow-y-auto">
+          <table>
+            <thead>
+              <tr>
+                <th>عنصر</th>
+                <th>سینتکس مارک‌داون</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>سرفصل ۱</td>
+                <td><code># سرفصل ۱</code></td>
+              </tr>
+              <tr>
+                <td>سرفصل ۲</td>
+                <td><code>## سرفصل ۲</code></td>
+              </tr>
+              <tr>
+                <td>لینک</td>
+                <td><code>[عنوان لینک](https://example.com)</code></td>
+              </tr>
+              <tr>
+                <td><strong>ضخیم</strong></td>
+                <td><code>**متن ضخیم**</code></td>
+              </tr>
+              <tr>
+                <td><em>ایتالیک</em></td>
+                <td><code>*متن ایتالیک*</code></td>
+              </tr>
+              <tr>
+                <td>نقل‌قول</td>
+                <td><code>&gt; نقل‌قول</code></td>
+              </tr>
+              <tr>
+                <td>لیست شماره‌دار</td>
+                <td><pre><code>1. آیتم اول
+2. آیتم دوم</code></pre></td>
+              </tr>
+              <tr>
+                <td>لیست بدون ترتیب</td>
+                <td><pre><code>- آیتم اول
+- آیتم دوم</code></pre></td>
+              </tr>
+              <tr>
+                <td>کد (inline)</td>
+                <td><code>`کد`</code></td>
+              </tr>
+               <tr>
+                <td>بلوک کد</td>
+                <td><pre><code>```javascript
+console.log("hello");
+```</code></pre></td>
+              </tr>
+              <tr>
+                <td>خط افقی</td>
+                <td><code>---</code></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </DialogContent>
+    </Dialog>
+  );
 
 export default function NoteCreator() {
   const [noteLink, setNoteLink] = useState<string | null>(null);
@@ -154,7 +237,7 @@ export default function NoteCreator() {
           </CardHeader>
           <CardContent className="space-y-6">
             <div className="flex justify-center">
-              <QRCode value={noteLink} size={160} bgColor="transparent" fgColor="#FFFFFF" className="p-2 bg-white/10 rounded-lg border border-white/20"/>
+                <QRCode value={noteLink} size={160} bgColor="#FFFFFF00" fgColor="#FFFFFF" className="p-2 bg-white/10 rounded-lg border border-white/20"/>
             </div>
             <div className="flex items-center space-x-2 space-x-reverse">
               <Input value={noteLink} readOnly className="flex-1 text-left bg-black/20" dir="ltr" />
@@ -179,7 +262,8 @@ export default function NoteCreator() {
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="flex flex-col h-full">
-        <Card className="flex-1 flex flex-col">
+        <Card className="flex-1 flex flex-col relative">
+            <MarkdownGuide />
             <CardContent className="flex-1 flex flex-col p-4">
                <FormField
                   control={form.control}
@@ -188,7 +272,7 @@ export default function NoteCreator() {
                   <FormItem className="flex-1 flex flex-col">
                      <FormControl className="flex-1">
                         <Textarea
-                        placeholder="یادداشت محرمانه خود را اینجا تایپ کنید..."
+                        placeholder="یادداشت محرمانه خود را اینجا تایپ کنید... (از مارک‌داون پشتیبانی می‌شود)"
                         className="h-full resize-none text-base border-0 focus-visible:ring-0 focus-visible:ring-offset-0 p-0 shadow-none bg-transparent"
                         {...field}
                         />

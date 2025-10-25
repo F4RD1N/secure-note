@@ -5,6 +5,8 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { motion } from 'framer-motion';
+import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
 import { decrypt } from '@/lib/crypto';
 import type { Note } from '@/lib/types';
 import { formatDistanceToNow } from 'date-fns';
@@ -12,7 +14,7 @@ import { faIR } from 'date-fns/locale';
 
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Eye, Lock, Hourglass, Loader2 } from 'lucide-react';
@@ -110,9 +112,11 @@ export default function NoteViewer({ note }: NoteViewerProps) {
             </div>
           </CardHeader>
           <CardContent>
-            <pre className="whitespace-pre-wrap font-body text-base bg-muted/50 p-4 rounded-md">
-              {decryptedContent}
-            </pre>
+            <div className="prose prose-invert prose-p:my-2 prose-headings:my-3 prose-ul:my-2 prose-blockquote:my-2 max-w-none bg-muted/50 p-4 rounded-md">
+                <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                    {decryptedContent}
+                </ReactMarkdown>
+            </div>
           </CardContent>
         </Card>
       </motion.div>
@@ -127,7 +131,7 @@ export default function NoteViewer({ note }: NoteViewerProps) {
             <CardTitle className="flex items-center gap-2">
               <Lock className="w-5 h-5" /> محافظت شده با رمز عبور
             </CardTitle>
-            <CardDescription>برای مشاهده این یادداشت، رمز عبور را وارد کنید.</CardDescription>
+            <p className="text-sm text-muted-foreground pt-2">برای مشاهده این یادداشت، رمز عبور را وارد کنید.</p>
           </CardHeader>
           <CardContent>
             <Form {...form}>
