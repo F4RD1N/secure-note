@@ -179,8 +179,8 @@ export default function NoteCreator() {
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="flex flex-col h-full">
-         <Card className="flex-1 flex flex-col">
-            <CardContent className="flex-1 flex flex-col p-4">
+         <Card className="flex-1 flex flex-col shadow-none border-0">
+            <CardContent className="flex-1 flex flex-col p-4 bg-muted/30 rounded-xl">
                <FormField
                   control={form.control}
                   name="content"
@@ -199,8 +199,8 @@ export default function NoteCreator() {
                   />
             </CardContent>
          </Card>
-        <Card className="mt-4">
-            <CardContent className="p-4 space-y-4">
+        <Card className="mt-4 shadow-none border-0">
+            <CardContent className="p-4 space-y-4 bg-muted/30 rounded-xl">
                  <div className="space-y-1">
                     <h3 className="text-base font-medium tracking-tight">تنظیمات</h3>
                 </div>
@@ -236,6 +236,7 @@ export default function NoteCreator() {
                       name="expireUnit"
                       render={({ field }) => (
                       <FormItem>
+                          <FormLabel>&nbsp;</FormLabel>
                           <FormControl>
                               <Select onValueChange={field.onChange} defaultValue={field.value}>
                                   <SelectTrigger>
@@ -268,7 +269,7 @@ export default function NoteCreator() {
                         <Switch
                           checked={field.value}
                           onCheckedChange={field.onChange}
-                          
+                          dir="ltr"
                         />
                     </FormControl>
                     </FormItem>
