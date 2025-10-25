@@ -114,28 +114,26 @@ export default function NoteViewer({ note }: NoteViewerProps) {
               )}
             </div>
           </CardHeader>
-          <CardContent>
-            <div dir="auto" className="prose prose-invert prose-p:my-2 prose-headings:my-3 prose-ul:my-2 prose-blockquote:my-2 max-w-none bg-muted/50 p-4 rounded-md break-words">
-                <ReactMarkdown
-                    remarkPlugins={[remarkGfm]}
-                    components={{
-                        code({node, inline, className, children, ...props}) {
-                            const match = /language-(\w+)/.exec(className || '')
-                            return !inline ? (
-                                <code className={className} {...props}>
-                                    {children}
-                                </code>
-                            ) : (
-                                <code className="bg-background/70 text-primary font-mono text-sm rounded-sm px-1.5 py-0.5" {...props}>
-                                    {children}
-                                </code>
-                            )
-                        }
-                    }}
-                >
-                    {decryptedContent}
-                </ReactMarkdown>
-            </div>
+          <CardContent dir="auto" className="prose prose-invert prose-p:my-2 prose-headings:my-3 prose-ul:my-2 prose-blockquote:my-2 max-w-none break-words">
+            <ReactMarkdown
+                remarkPlugins={[remarkGfm]}
+                components={{
+                    code({node, inline, className, children, ...props}) {
+                        const match = /language-(\w+)/.exec(className || '')
+                        return !inline ? (
+                            <code className={className} {...props}>
+                                {children}
+                            </code>
+                        ) : (
+                            <code className="bg-background/70 text-primary font-mono text-sm rounded-sm px-1.5 py-0.5" {...props}>
+                                {children}
+                            </code>
+                        )
+                    }
+                }}
+            >
+                {decryptedContent}
+            </ReactMarkdown>
           </CardContent>
         </Card>
       </motion.div>
