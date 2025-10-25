@@ -61,7 +61,7 @@ const MarkdownGuide = () => (
       </DialogTrigger>
       <DialogContent className="sm:max-w-2xl border-white/10 bg-white/5 backdrop-blur-lg">
         <DialogHeader>
-          <DialogTitle>راهنمay سریع مارک‌داون</DialogTitle>
+          <DialogTitle>راهنمای سریع مارک‌داون</DialogTitle>
         </DialogHeader>
         <div className="prose prose-sm prose-invert max-w-none mt-4 max-h-[60vh] overflow-y-auto">
           <table>
