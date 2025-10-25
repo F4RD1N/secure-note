@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
 import QRCode from 'qrcode.react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -13,7 +13,6 @@ import { useToast } from '@/hooks/use-toast';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import {
   Select,
@@ -31,8 +30,9 @@ import {
   FormLabel,
   FormMessage,
 } from '@/components/ui/form';
-import { Copy, Settings, Loader2, Link as LinkIcon, Share2 } from 'lucide-react';
+import { Copy, Loader2, Link as LinkIcon, Share2 } from 'lucide-react';
 import { nanoid } from 'nanoid';
+import { Separator } from '@/components/ui/separator';
 
 const formSchema = z.object({
   content: z.string().min(1, 'یادداشت نمی‌تواند خالی باشد.'),
@@ -46,7 +46,6 @@ const formSchema = z.object({
 type FormValues = z.infer<typeof formSchema>;
 
 export default function NoteCreator() {
-  const [showSettings, setShowSettings] = useState(false);
   const [noteLink, setNoteLink] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { toast } = useToast();
@@ -158,7 +157,7 @@ export default function NoteCreator() {
             <div className="flex justify-center">
               <QRCode value={noteLink} size={160} bgColor="hsl(var(--background))" fgColor="hsl(var(--foreground))" className="p-2 bg-card rounded-lg border"/>
             </div>
-            <div className="flex items-center space-x-2">
+            <div className="flex items-center space-x-2 space-x-reverse">
               <Input value={noteLink} readOnly className="flex-1 text-left" dir="ltr" />
               <Button variant="outline" size="icon" onClick={copyToClipboard} aria-label="کپی لینک">
                 <Copy className="h-4 w-4" />
@@ -166,7 +165,7 @@ export default function NoteCreator() {
             </div>
             <div className="flex flex-col sm:flex-row gap-2">
                 <Button onClick={shareLink} className="w-full">
-                    <Share2 className="ml-2 h-4 w-4" /> اشتراک‌گذاری لینک
+                    <Share2 className="mr-2 h-4 w-4" /> اشتراک‌گذاری لینک
                 </Button>
                 <Button variant="secondary" onClick={() => { setNoteLink(null); form.reset(); }} className="w-full">
                   ایجاد یادداشت دیگر
@@ -200,110 +199,104 @@ export default function NoteCreator() {
           />
         </div>
 
-        <AnimatePresence>
-          {showSettings && (
-            <motion.div
-              initial={{ height: 0, opacity: 0 }}
-              animate={{ height: 'auto', opacity: 1 }}
-              exit={{ height: 0, opacity: 0 }}
-              transition={{ duration: 0.3 }}
-              className="overflow-hidden"
-            >
-              <div className="grid gap-4 py-4">
-                <FormField
-                  control={form.control}
-                  name="password"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>رمز عبور (اختیاری)</FormLabel>
-                      <FormControl>
-                        <Input type="password" placeholder="از یادداشت خود محافظت کنید" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
+        <div className="space-y-6 pt-4">
+           <Separator />
+           <div className="space-y-2">
+              <h3 className="text-lg font-semibold tracking-tight">تنظیمات امنیتی</h3>
+              <p className="text-sm text-muted-foreground">
+                گزینه‌هایی برای محافظت و کنترل دسترسی به یادداشت شما.
+              </p>
+            </div>
 
-                <div className="grid grid-cols-2 gap-4">
-                  <FormField
-                    control={form.control}
-                    name="expireValue"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>انقضا پس از</FormLabel>
+            <FormField
+              control={form.control}
+              name="password"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>رمز عبور (اختیاری)</FormLabel>
+                  <FormControl>
+                    <Input type="password" placeholder="از یادداشت خود محافظت کنید" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="deleteAfterFirstView"
+              render={({ field }) => (
+                <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3 shadow-sm bg-background">
+                  <div className="space-y-0.5">
+                    <FormLabel>تخریب خودکار</FormLabel>
+                    <p className="text-sm text-muted-foreground">
+                      یادداشت پس از اولین بازدید حذف شود.
+                    </p>
+                  </div>
+                  <FormControl>
+                    <Switch
+                      checked={field.value}
+                      onCheckedChange={field.onChange}
+                    />
+                  </FormControl>
+                </FormItem>
+              )}
+            />
+
+           <div className="space-y-2">
+              <h3 className="text-lg font-semibold tracking-tight">تنظیمات انقضا</h3>
+              <p className="text-sm text-muted-foreground">
+                یادداشت چه زمانی منقضی و حذف شود.
+              </p>
+            </div>
+
+            <div className="grid grid-cols-2 gap-4">
+              <FormField
+                control={form.control}
+                name="expireValue"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>انقضا پس از</FormLabel>
+                    <FormControl>
+                      <Input type="number" placeholder="مثلاً ۲" {...field} />
+                    </FormControl>
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="expireUnit"
+                render={({ field }) => (
+                  <FormItem>
+                     <FormLabel className="opacity-0 hidden md:inline-block">واحد</FormLabel>
+                     <Select onValueChange={field.onChange} defaultValue={field.value}>
                         <FormControl>
-                          <Input type="number" placeholder="مثلاً ۲" {...field} />
+                          <SelectTrigger>
+                            <SelectValue placeholder="واحد"/>
+                          </SelectTrigger>
                         </FormControl>
-                      </FormItem>
-                    )}
-                  />
-                  <FormField
-                    control={form.control}
-                    name="expireUnit"
-                    render={({ field }) => (
-                      <FormItem>
-                         <FormLabel className="opacity-0 hidden md:inline-block">واحد</FormLabel>
-                         <Select onValueChange={field.onChange} defaultValue={field.value}>
-                            <FormControl>
-                              <SelectTrigger>
-                                <SelectValue placeholder="واحد"/>
-                              </SelectTrigger>
-                            </FormControl>
-                            <SelectContent>
-                              <SelectItem value="minutes">دقیقه</SelectItem>
-                              <SelectItem value="hours">ساعت</SelectItem>
-                              <SelectItem value="days">روز</SelectItem>
-                            </SelectContent>
-                          </Select>
-                      </FormItem>
-                    )}
-                  />
-                </div>
-                
-                <FormField
-                  control={form.control}
-                  name="deleteAfterFirstView"
-                  render={({ field }) => (
-                    <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3 shadow-sm">
-                      <div className="space-y-0.5">
-                        <FormLabel>تخریب خودکار</FormLabel>
-                        <p className="text-sm text-muted-foreground">
-                          یادداشت پس از اولین بازدید حذف شود.
-                        </p>
-                      </div>
-                      <FormControl>
-                        <Switch
-                          checked={field.value}
-                          onCheckedChange={field.onChange}
-                        />
-                      </FormControl>
-                    </FormItem>
-                  )}
-                />
-              </div>
-            </motion.div>
-          )}
-        </AnimatePresence>
+                        <SelectContent>
+                          <SelectItem value="minutes">دقیقه</SelectItem>
+                          <SelectItem value="hours">ساعت</SelectItem>
+                          <SelectItem value="days">روز</SelectItem>
+                        </SelectContent>
+                      </Select>
+                  </FormItem>
+                )}
+              />
+            </div>
+        </div>
+
 
         <div className="sticky bottom-0 bg-background py-4 flex flex-col sm:flex-row gap-2">
           <Button type="submit" className="w-full" disabled={isSubmitting}>
             {isSubmitting ? (
               <>
-                <Loader2 className="ml-2 h-4 w-4 animate-spin" />
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                 در حال ایجاد...
               </>
             ) : 'ایجاد لینک'
             }
-          </Button>
-          <Button
-            type="button"
-            variant="outline"
-            onClick={() => setShowSettings(!showSettings)}
-            className="w-full sm:w-auto"
-            aria-label="تغییر تنظیمات"
-          >
-            <Settings className="h-4 w-4" />
-            <span className="sm:hidden ml-2">تنظیمات</span>
           </Button>
         </div>
       </form>
