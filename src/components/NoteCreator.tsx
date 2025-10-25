@@ -60,21 +60,22 @@ const MarkdownIcon = () => (
     </svg>
 )
 
-const MarkdownToolbar = ({ control, textareaRef }: { control: any, textareaRef: React.RefObject<HTMLTextAreaElement> }) => {
-  const { getValues, setValue } = useForm({ control });
+type MarkdownToolbarProps = {
+  getValues: () => FormValues;
+  setValue: (name: keyof FormValues, value: any) => void;
+  textareaRef: React.RefObject<HTMLTextAreaElement>;
+};
 
+const MarkdownToolbar = ({ getValues, setValue, textareaRef }: MarkdownToolbarProps) => {
   const insertMarkdown = (syntax: string, placeholder: string) => {
     if (!textareaRef.current) return;
 
     const textarea = textareaRef.current;
     const start = textarea.selectionStart;
     const end = textarea.selectionEnd;
-    const currentText = getValues('content') || '';
+    const currentText = getValues().content || '';
     const selectedText = currentText.substring(start, end);
 
-    const newText = `${currentText.substring(0, start)}${syntax}${selectedText || placeholder}${syntax.endsWith(')') ? '' : syntax.split('').reverse().join('')}${currentText.substring(end)}`;
-    
-    // For things like links and quotes that are block-level
     let textToInsert = '';
     let cursorPosition = start;
 
@@ -108,7 +109,7 @@ const MarkdownToolbar = ({ control, textareaRef }: { control: any, textareaRef: 
         cursorPosition = start + 1;
         break;
       default:
-        textToInsert = newText;
+        textToInsert = `${currentText.substring(0, start)}${syntax}${selectedText || placeholder}${syntax.split('').reverse().join('')}${currentText.substring(end)}`;
         cursorPosition = start + syntax.length;
     }
 
@@ -287,7 +288,7 @@ export default function NoteCreator() {
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="flex flex-col h-full">
         <Card className="flex-1 flex flex-col relative">
-            <MarkdownToolbar control={form.control} textareaRef={textareaRef} />
+            <MarkdownToolbar getValues={form.getValues} setValue={form.setValue} textareaRef={textareaRef} />
             <CardContent className="flex-1 flex flex-col p-4">
                <FormField
                   control={form.control}
@@ -403,5 +404,3 @@ export default function NoteCreator() {
     </Form>
   );
 }
-
-    
