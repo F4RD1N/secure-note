@@ -54,14 +54,14 @@ type FormValues = z.infer<typeof formSchema>;
 const MarkdownGuide = () => (
     <Dialog>
       <DialogTrigger asChild>
-        <Button variant="ghost" size="icon" className="h-7 w-7 absolute top-2 right-2">
+        <Button variant="ghost" size="icon" className="h-7 w-7 absolute top-3 left-3 z-10">
             <HelpCircle className="h-5 w-5" />
             <span className="sr-only">راهنمای مارک‌داون</span>
         </Button>
       </DialogTrigger>
-      <DialogContent className="sm:max-w-2xl">
+      <DialogContent className="sm:max-w-2xl border-white/10 bg-white/5 backdrop-blur-lg">
         <DialogHeader>
-          <DialogTitle>راهنمای سریع مارک‌داون</DialogTitle>
+          <DialogTitle>راهنمay سریع مارک‌داون</DialogTitle>
         </DialogHeader>
         <div className="prose prose-sm prose-invert max-w-none mt-4 max-h-[60vh] overflow-y-auto">
           <table>
