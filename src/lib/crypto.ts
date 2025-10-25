@@ -48,11 +48,13 @@ export function decrypt(data: EncryptedData, secret: string): string {
     mode: CryptoJS.mode.CBC,
   });
   
-  const decryptedText = decrypted.toString(CryptoJS.enc.Utf8);
-
-  if (!decryptedText) {
+  try {
+    const decryptedText = decrypted.toString(CryptoJS.enc.Utf8);
+    if (!decryptedText) {
+        throw new Error('Decryption failed. Empty result.');
+    }
+    return decryptedText;
+  } catch (e) {
     throw new Error('Decryption failed. Probably wrong password.');
   }
-
-  return decryptedText;
 }
