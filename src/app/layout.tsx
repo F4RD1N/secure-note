@@ -6,7 +6,7 @@ import { cn } from '@/lib/utils';
 
 export const metadata: Metadata = {
   title: 'یادداشت امن',
-  description: 'اشتراک‌گذاری سریع، امن و ساده‌ی یادداشت.',
+  description: 'اشتراک‌ گذاری سریع، امن و ساده‌ی یادداشت.',
   applicationName: 'یادداشت امن',
   manifest: '/manifest.json',
   appleWebApp: {
