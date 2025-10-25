@@ -218,7 +218,7 @@ export default function NoteCreator() {
   const shareLink = () => {
     if (navigator.share && noteLink) {
       navigator.share({
-        title: 'لینک یادداشت سریع',
+        title: 'لینک یادداشت',
         text: 'یک یادداشت امن برای شما:',
         url: noteLink,
       }).catch(error => console.log('خطا در اشتراک‌گذاری:', error));

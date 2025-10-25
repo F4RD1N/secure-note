@@ -22,7 +22,7 @@ export default function Header() {
         )}
         <Link href="/" className="text-xl font-bold tracking-tight">
           <h1>
-            یادداشت سریع
+            یادداشت امن
           </h1>
         </Link>
       </div>

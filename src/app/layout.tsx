@@ -5,14 +5,14 @@ import Header from '@/components/Header';
 import { cn } from '@/lib/utils';
 
 export const metadata: Metadata = {
-  title: 'یادداشت سریع',
+  title: 'یادداشت امن',
   description: 'اشتراک‌گذاری سریع، امن و ساده‌ی یادداشت.',
-  applicationName: 'یادداشت سریع',
+  applicationName: 'یادداشت امن',
   manifest: '/manifest.json',
   appleWebApp: {
     capable: true,
     statusBarStyle: 'default',
-    title: 'یادداشت سریع',
+    title: 'یادداشت امن',
   },
 };
 
