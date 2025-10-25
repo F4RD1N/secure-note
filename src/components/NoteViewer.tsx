@@ -8,7 +8,7 @@ import { motion } from 'framer-motion';
 import { decrypt } from '@/lib/crypto';
 import type { Note } from '@/lib/types';
 import { formatDistanceToNow } from 'date-fns';
-import { fa } from 'date-fns/locale';
+import { faIR } from 'date-fns/locale';
 
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -40,7 +40,7 @@ export default function NoteViewer({ note }: NoteViewerProps) {
       const updateTimer = () => {
         const remaining = note.expires_at! - Date.now();
         if (remaining > 0) {
-          setTimeLeft(formatDistanceToNow(note.expires_at!, { locale: fa, addSuffix: true }));
+          setTimeLeft(formatDistanceToNow(note.expires_at!, { locale: faIR, addSuffix: true }));
         } else {
           setTimeLeft('منقضی شده');
         }
