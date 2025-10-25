@@ -115,7 +115,7 @@ export default function NoteViewer({ note }: NoteViewerProps) {
             </div>
           </CardHeader>
           <CardContent>
-            <div className="prose prose-invert prose-p:my-2 prose-headings:my-3 prose-ul:my-2 prose-blockquote:my-2 max-w-none bg-muted/50 p-4 rounded-md">
+            <div dir="auto" className="prose prose-invert prose-p:my-2 prose-headings:my-3 prose-ul:my-2 prose-blockquote:my-2 max-w-none bg-muted/50 p-4 rounded-md break-words">
                 <ReactMarkdown
                     remarkPlugins={[remarkGfm]}
                     components={{
