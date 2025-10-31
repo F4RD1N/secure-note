@@ -1,5 +1,46 @@
-# Firebase Studio
+# Secure Note
 
-This is a NextJS starter in Firebase Studio.
+Secure Note is a simple, fast, and secure way to share self-destructing notes. Create a note, set its expiration, and share the link. The note's content is encrypted and can only be accessed with the unique link.
 
-To get started, take a look at src/app/page.tsx.
+## Features
+
+- **End-to-End Encryption**: Notes are encrypted in your browser before being sent to the server. They can only be decrypted with the unique key in the URL fragment, which is never sent to the server.
+- **Self-Destruction**: Notes can be set to expire after a certain amount of time or after being viewed a specific number of times.
+- **Password Protection**: Add an extra layer of security with an optional password.
+- **Markdown Support**: Format your notes using Markdown.
+- **QR Code Sharing**: Easily share the note link using a generated QR code.
+
+## Tech Stack
+
+- **Framework**: [Next.js](https://nextjs.org/) (App Router)
+- **UI**: [React](https://react.dev/)
+- **Styling**: [Tailwind CSS](https://tailwindcss.com/)
+- **UI Components**: [shadcn/ui](https://ui.shadcn.com/)
+- **Database**: [better-sqlite3](https://github.com/WiseLibs/better-sqlite3)
+- **Encryption**: [crypto-js](https://github.com/brix/crypto-js)
+
+## Getting Started
+
+To get a local copy up and running, follow these simple steps.
+
+### Prerequisites
+
+- Node.js (v18 or higher)
+- npm or yarn
+
+### Installation
+
+1. Clone the repo
+   ```sh
+   git clone https://github.com/your_username_/project_name.git
+   ```
+2. Install NPM packages
+   ```sh
+   npm install
+   ```
+3. Run the development server
+   ```sh
+   npm run dev
+   ```
+
+Open [http://localhost:9002](http://localhost:9002) with your browser to see the result.
