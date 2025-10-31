@@ -1,7 +1,5 @@
-// This component must run on the client
 'use client';
 
-// Import necessary hooks, components, and utilities
 import { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';

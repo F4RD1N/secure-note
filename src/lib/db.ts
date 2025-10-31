@@ -1,4 +1,3 @@
-// Import the database library and Node.js modules
 import Database from 'better-sqlite3';
 import path from 'path';
 import fs from 'fs';

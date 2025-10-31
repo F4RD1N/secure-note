@@ -1,4 +1,3 @@
-// Import necessary functions and components
 import { getNote } from '@/lib/actions';
 import { redirect } from 'next/navigation';
 import NoteViewer from '@/components/NoteViewer';

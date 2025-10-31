@@ -1,7 +1,5 @@
-// This component needs to run on the client side
 'use client';
 
-// Import necessary components and hooks
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { Home } from 'lucide-react';

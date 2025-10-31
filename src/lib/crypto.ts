@@ -1,4 +1,3 @@
-// Import the crypto library
 import CryptoJS from 'crypto-js';
 
 // Define constants for the encryption algorithm

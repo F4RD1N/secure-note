@@ -1,4 +1,3 @@
-// Import necessary types and components for the layout
 import type { Metadata } from 'next';
 import './globals.css';
 import { Toaster } from '@/components/ui/toaster';

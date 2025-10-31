@@ -1,7 +1,5 @@
-// This component must run on the client
 'use client';
 
-// Import necessary hooks, components, and utilities
 import { useState, useRef, type ElementRef } from 'react';
 import { motion } from 'framer-motion';
 import QRCode from 'qrcode.react';

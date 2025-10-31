@@ -1,7 +1,5 @@
-// This file runs on the server
 'use server';
 
-// Import necessary functions and types
 import { nanoid } from 'nanoid';
 import { initDb } from './db';
 import type { Note } from './types';
