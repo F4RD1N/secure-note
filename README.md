@@ -32,7 +32,7 @@ To get a local copy up and running, follow these simple steps.
 
 1. Clone the repo
    ```sh
-   git clone https://github.com/your_username_/project_name.git
+   git clone https://github.com/F4RD1N/project_name.git
    ```
 2. Install NPM packages
    ```sh
@@ -43,7 +43,7 @@ To get a local copy up and running, follow these simple steps.
    npm run dev
    ```
 
-Open [http://localhost:9002](http://localhost:9002) with your browser to see the result.
+Open [http://localhost:3002](http://localhost:3002) with your browser to see the result.
 
 ## Acknowledgements
 
