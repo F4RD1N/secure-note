@@ -1,5 +1,7 @@
+// This component must run on the client
 'use client';
 
+// Import necessary hooks, components, and utilities
 import { useState, useRef, type ElementRef } from 'react';
 import { motion } from 'framer-motion';
 import QRCode from 'qrcode.react';
@@ -10,6 +12,7 @@ import { createNote } from '@/lib/actions';
 import { encrypt } from '@/lib/crypto';
 import { useToast } from '@/hooks/use-toast';
 
+// Import UI components
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Input } from '@/components/ui/input';
@@ -36,9 +39,11 @@ import {
   FormLabel,
   FormMessage,
 } from '@/components/ui/form';
+// Import icons
 import { Copy, Loader2, Link as LinkIcon, Share2, Bold, Italic, Heading1, Link as LinkIconMD, Quote, List, Code } from 'lucide-react';
 import { nanoid } from 'nanoid';
 
+// Define the validation schema for the form
 const formSchema = z.object({
   content: z.string().min(1, 'یادداشت نمی‌تواند خالی باشد.'),
   password: z.string().optional(),
@@ -48,8 +53,10 @@ const formSchema = z.object({
   deleteAfterFirstView: z.boolean().default(false),
 });
 
+// Define the type for the form values based on the schema
 type FormValues = z.infer<typeof formSchema>;
 
+// Custom Markdown icon component
 const MarkdownIcon = () => (
     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-5 w-5">
         <path d="M18 10h-3V7h3v3Z"/>
@@ -60,13 +67,16 @@ const MarkdownIcon = () => (
     </svg>
 )
 
+// Define properties for the MarkdownToolbar component
 type MarkdownToolbarProps = {
   getValues: () => FormValues;
   setValue: (name: keyof FormValues, value: any, options?: { shouldValidate?: boolean; shouldDirty?: boolean; shouldTouch?: boolean }) => void;
   textareaRef: React.RefObject<HTMLTextAreaElement>;
 };
 
+// Markdown toolbar component to help with formatting
 const MarkdownToolbar = ({ getValues, setValue, textareaRef }: MarkdownToolbarProps) => {
+    // Function to insert markdown syntax into the textarea
     const insertMarkdown = (syntaxStart: string, syntaxEnd: string = '', placeholder: string) => {
         if (!textareaRef.current) return;
 
@@ -84,19 +94,19 @@ const MarkdownToolbar = ({ getValues, setValue, textareaRef }: MarkdownToolbarPr
 
         textarea.focus();
 
+        // Set cursor position after inserting markdown
         setTimeout(() => {
             textarea.focus();
             if (selectedText) {
-                // If text was selected, place cursor after the inserted syntax
                 textarea.setSelectionRange(start + textToInsert.length, start + textToInsert.length);
             } else {
-                // If no text was selected, place cursor inside the syntax
                 const cursorPos = start + syntaxStart.length;
                 textarea.setSelectionRange(cursorPos, cursorPos);
             }
         }, 10);
     };
 
+    // Define markdown actions for the dropdown menu
     const markdownItems = [
         { label: 'سرفصل', icon: Heading1, action: () => insertMarkdown('# ', '', 'سرفصل') },
         { label: 'ضخیم', icon: Bold, action: () => insertMarkdown('**', '**', 'متن ضخیم') },
@@ -116,6 +126,7 @@ const MarkdownToolbar = ({ getValues, setValue, textareaRef }: MarkdownToolbarPr
                 </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="w-40 border-white/10 bg-black/50 backdrop-blur-sm">
+                {/* Map through markdown items and create menu items */}
                 {markdownItems.map(({ label, icon: Icon, action }) => (
                     <DropdownMenuItem key={label} onSelect={(e) => { e.preventDefault(); action() }}>
                         <Icon className="h-4 w-4 ml-2" />
@@ -127,12 +138,18 @@ const MarkdownToolbar = ({ getValues, setValue, textareaRef }: MarkdownToolbarPr
     );
 };
 
+// The main component for creating a new note
 export default function NoteCreator() {
+  // State to hold the generated note link
   const [noteLink, setNoteLink] = useState<string | null>(null);
+  // State to track form submission status
   const [isSubmitting, setIsSubmitting] = useState(false);
+  // Ref for the textarea element
   const textareaRef = useRef<ElementRef<'textarea'>>(null);
+  // Hook to show toasts
   const { toast } = useToast();
 
+  // Initialize react-hook-form
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -143,9 +160,10 @@ export default function NoteCreator() {
     },
   });
   
+  // Destructure form methods
   const { getValues, setValue, control, handleSubmit, reset } = form;
 
-
+  // Function to handle form submission
   const onSubmit = async (data: FormValues) => {
     setIsSubmitting(true);
     try {
@@ -153,15 +171,18 @@ export default function NoteCreator() {
       let key = '';
       let salt = null;
 
+      // Generate a key for encryption
       if (hasPassword) {
         key = data.password as string;
       } else {
         key = nanoid(32);
       }
 
+      // Encrypt the note content
       const { ciphertext, iv, salt: returnedSalt } = encrypt(data.content, key);
       salt = returnedSalt;
 
+      // Calculate expiration timestamp if provided
       let expiresAt: number | null = null;
       if (data.expireValue && data.expireUnit) {
         const now = new Date();
@@ -173,11 +194,13 @@ export default function NoteCreator() {
         expiresAt = now.getTime() + data.expireValue * multiplier[data.expireUnit];
       }
 
+      // Set remaining views
       let viewsRemaining = data.views ? data.views : null;
       if (data.deleteAfterFirstView) {
         viewsRemaining = 1;
       }
 
+      // Call the server action to create the note in the database
       const result = await createNote({
         content: ciphertext,
         iv,
@@ -187,6 +210,7 @@ export default function NoteCreator() {
         viewsRemaining,
       });
 
+      // If creation is successful, generate and set the note link
       if (result.id) {
         const link = `${window.location.origin}/n/${result.id}${!hasPassword ? `#${key}` : ''}`;
         setNoteLink(link);
@@ -194,6 +218,7 @@ export default function NoteCreator() {
         throw new Error('ایجاد یادداشت ناموفق بود.');
       }
     } catch (error) {
+      // Show an error toast if something goes wrong
       toast({
         variant: 'destructive',
         title: 'خطا',
@@ -201,10 +226,12 @@ export default function NoteCreator() {
       });
       console.error(error);
     } finally {
+      // Reset submission status
       setIsSubmitting(false);
     }
   };
 
+  // Function to copy the note link to the clipboard
   const copyToClipboard = () => {
     if (noteLink) {
       navigator.clipboard.writeText(noteLink);
@@ -215,6 +242,7 @@ export default function NoteCreator() {
     }
   };
   
+  // Function to share the link using the Web Share API or copy it
   const shareLink = () => {
     if (navigator.share && noteLink) {
       navigator.share({
@@ -223,11 +251,12 @@ export default function NoteCreator() {
         url: noteLink,
       }).catch(error => console.log('خطا در اشتراک‌گذاری:', error));
     } else {
+      // Fallback to copying if Web Share API is not available
       copyToClipboard();
     }
   };
 
-
+  // If a note link has been generated, show the success screen
   if (noteLink) {
     return (
       <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="w-full">
@@ -240,9 +269,11 @@ export default function NoteCreator() {
             <CardDescription>یادداشت امن شما آماده اشتراک‌گذاری است.</CardDescription>
           </CardHeader>
           <CardContent className="space-y-6">
+            {/* Display the QR code for the link */}
             <div className="flex justify-center">
                 <QRCode value={noteLink} size={160} bgColor="#00000000" fgColor="#FFFFFF" className="p-2 bg-white/10 rounded-lg border border-white/20"/>
             </div>
+            {/* Display the link in a read-only input field with a copy button */}
             <div className="flex items-center space-x-2 space-x-reverse">
               <Input value={noteLink} readOnly className="flex-1 text-left bg-black/20" dir="ltr" />
               <Button variant="outline" size="icon" onClick={copyToClipboard} aria-label="کپی لینک">
@@ -250,6 +281,7 @@ export default function NoteCreator() {
               </Button>
             </div>
             <div className="flex flex-col sm:flex-row gap-2">
+                {/* Share and Create Another Note buttons */}
                 <Button onClick={shareLink} className="w-full">
                     <Share2 className="mr-2 h-4 w-4" /> اشتراک‌گذاری لینک
                 </Button>
@@ -263,10 +295,12 @@ export default function NoteCreator() {
     );
   }
 
+  // Otherwise, show the note creation form
   return (
     <Form {...form}>
       <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col h-full">
         <Card className="flex-1 flex flex-col relative">
+            {/* Markdown toolbar for text formatting */}
             <MarkdownToolbar getValues={getValues} setValue={setValue} textareaRef={textareaRef} />
             <CardContent className="flex-1 flex flex-col p-4">
                <FormField
@@ -275,6 +309,7 @@ export default function NoteCreator() {
                   render={({ field }) => (
                   <FormItem className="flex-1 flex flex-col">
                      <FormControl className="flex-1">
+                        {/* Textarea for note content */}
                         <Textarea
                           {...field}
                           ref={textareaRef}
@@ -288,11 +323,13 @@ export default function NoteCreator() {
                   />
             </CardContent>
          </Card>
+        {/* Settings card */}
         <Card className="mt-4">
             <CardContent className="p-4 space-y-4">
                  <div className="space-y-1">
                     <h3 className="text-base font-medium tracking-tight">تنظیمات</h3>
                 </div>
+                {/* Password field */}
                 <FormField
                 control={control}
                 name="password"
@@ -307,6 +344,7 @@ export default function NoteCreator() {
                 )}
                 />
 
+                {/* Expiration settings */}
                 <div className="grid grid-cols-2 gap-4 items-end">
                   <FormField
                       control={control}
@@ -343,6 +381,7 @@ export default function NoteCreator() {
                   />
                 </div>
                 
+                {/* Self-destruct switch */}
                 <FormField
                 control={control}
                 name="deleteAfterFirstView"
@@ -367,7 +406,7 @@ export default function NoteCreator() {
             </CardContent>
         </Card>
 
-
+        {/* Submit button */}
         <div className="sticky bottom-0 pt-6 pb-4 flex flex-col sm:flex-row gap-2">
           <Button type="submit" className="w-full" disabled={isSubmitting}>
             {isSubmitting ? (

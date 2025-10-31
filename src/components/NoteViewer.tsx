@@ -1,5 +1,7 @@
+// This component must run on the client
 'use client';
 
+// Import necessary hooks, components, and utilities
 import { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -13,6 +15,7 @@ import type { Note } from '@/lib/types';
 import { formatDistanceToNow } from 'date-fns';
 import { faIR } from 'date-fns/locale';
 
+// Import UI components
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -20,21 +23,30 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Eye, Lock, Hourglass, Loader2 } from 'lucide-react';
 
+// Define the properties for the NoteViewer component
 interface NoteViewerProps {
   note: Note;
 }
 
+// Define the validation schema for the password form
 const passwordSchema = z.object({
   password: z.string().min(1, 'رمز عبور الزامی است.'),
 });
 
+// The main component for viewing a note
 export default function NoteViewer({ note }: NoteViewerProps) {
+  // State for the decrypted content of the note
   const [decryptedContent, setDecryptedContent] = useState<string | null>(null);
+  // State for any errors that occur
   const [error, setError] = useState<string | null>(null);
+  // State to track if decryption is in progress
   const [isDecrypting, setIsDecrypting] = useState(false);
+  // State to hold the remaining time until expiration
   const [timeLeft, setTimeLeft] = useState<string | null>(null);
+  // State to manage the initial loading screen
   const [isReady, setIsReady] = useState(false);
 
+  // Initialize react-hook-form for the password form
   const form = useForm({
     resolver: zodResolver(passwordSchema),
     defaultValues: {
@@ -42,41 +54,49 @@ export default function NoteViewer({ note }: NoteViewerProps) {
     }
   });
 
-  // Effect to handle view confirmation
+  // Effect to confirm that the note has been viewed
   useEffect(() => {
+    // If content is decrypted and the note has a view limit
     if (decryptedContent) {
       if (note.views_remaining !== null) {
+        // Call the server action to decrement the view count
         confirmNoteView(note.id);
       }
     }
   }, [decryptedContent, note.id, note.views_remaining]);
 
-
+  // Effect to update the countdown timer for expiration
   useEffect(() => {
     if (note.expires_at) {
       const updateTimer = () => {
         const remaining = note.expires_at! - Date.now();
         if (remaining > 0) {
+          // Format the remaining time into a human-readable string
           setTimeLeft(formatDistanceToNow(note.expires_at!, { locale: faIR, addSuffix: true }));
         } else {
           setTimeLeft('منقضی شده');
         }
       };
       updateTimer();
+      // Update the timer every second
       const interval = setInterval(updateTimer, 1000);
       return () => clearInterval(interval);
     }
   }, [note.expires_at]);
 
+  // Effect to handle decryption when the component loads
   useEffect(() => {
     const decryptOnLoad = () => {
+        // If the note is not password protected
         if (!note.has_password) {
             try {
+                // The key is in the URL hash
                 const key = window.location.hash.substring(1);
                 if (!key) {
-                setError('کلید رمزگشایی در آدرس یافت نشد.');
-                return;
+                  setError('کلید رمزگشایی در آدرس یافت نشد.');
+                  return;
                 }
+                // Decrypt the content
                 const content = decrypt({ content: note.content, iv: note.iv, salt: note.salt }, key);
                 setDecryptedContent(content);
             } catch (e) {
@@ -86,7 +106,7 @@ export default function NoteViewer({ note }: NoteViewerProps) {
         }
     };
     
-    // Gives a moment for the initial loading spinner to show
+    // Use a short timer to ensure the loading spinner is visible briefly
     const timer = setTimeout(() => {
       decryptOnLoad();
       setIsReady(true);
@@ -95,17 +115,21 @@ export default function NoteViewer({ note }: NoteViewerProps) {
     return () => clearTimeout(timer);
   }, [note]);
 
+  // Function to handle password submission for decryption
   const handlePasswordSubmit = async (data: { password: string }) => {
     setIsDecrypting(true);
     setError(null);
-    await new Promise(resolve => setTimeout(resolve, 500)); // Simulate delay
+    // Simulate a short delay for better user experience
+    await new Promise(resolve => setTimeout(resolve, 500));
     try {
+      // Decrypt the content using the provided password
       const content = decrypt({ content: note.content, iv: note.iv, salt: note.salt }, data.password);
       if (!content) {
         throw new Error('Decryption failed');
       }
       setDecryptedContent(content);
     } catch (e) {
+      // If decryption fails, show an error
       setError('رمز عبور نامعتبر است. لطفاً دوباره تلاش کنید.');
       console.error(e);
       form.reset();
@@ -114,6 +138,7 @@ export default function NoteViewer({ note }: NoteViewerProps) {
     }
   };
 
+  // Show a loading spinner initially
   if (!isReady) {
     return (
        <div className="flex flex-col items-center justify-center text-center space-y-4 w-full h-full">
@@ -123,6 +148,7 @@ export default function NoteViewer({ note }: NoteViewerProps) {
     );
   }
 
+  // If the content is successfully decrypted, display it
   if (decryptedContent) {
     return (
       <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="w-full">
@@ -130,6 +156,7 @@ export default function NoteViewer({ note }: NoteViewerProps) {
           <CardHeader>
             <CardTitle>یادداشت امن شما</CardTitle>
             <div className="text-sm text-muted-foreground flex flex-wrap gap-x-4 gap-y-1 pt-2">
+              {/* Show remaining views if applicable */}
               {note.views_remaining !== null && (
                 <span className="flex items-center gap-1.5">
                   <Eye className="w-4 h-4" />
@@ -138,6 +165,7 @@ export default function NoteViewer({ note }: NoteViewerProps) {
                     : `${note.views_remaining} بازدید باقی مانده`}
                 </span>
               )}
+              {/* Show time left until expiration if applicable */}
               {timeLeft !== null && (
                 <span className="flex items-center gap-1.5">
                   <Hourglass className="w-4 h-4" /> {timeLeft}
@@ -145,9 +173,11 @@ export default function NoteViewer({ note }: NoteViewerProps) {
               )}
             </div>
           </CardHeader>
+          {/* Render the markdown content */}
           <CardContent dir="auto" className="prose prose-invert prose-p:my-2 prose-headings:my-3 prose-ul:my-2 prose-blockquote:my-2 max-w-none break-words">
             <ReactMarkdown
                 remarkPlugins={[remarkGfm]}
+                // Custom components for styling markdown elements
                 components={{
                     code({node, inline, className, children, ...props}) {
                         const match = /language-(\w+)/.exec(className || '')
@@ -171,6 +201,7 @@ export default function NoteViewer({ note }: NoteViewerProps) {
     );
   }
 
+  // If the note is password-protected, show the password form
   if (note.has_password) {
     return (
       <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="w-full">
@@ -197,6 +228,7 @@ export default function NoteViewer({ note }: NoteViewerProps) {
                     </FormItem>
                   )}
                 />
+                {/* Show an alert if there's an error */}
                 {error && (
                   <Alert variant="destructive">
                     <AlertDescription>{error}</AlertDescription>
@@ -214,6 +246,7 @@ export default function NoteViewer({ note }: NoteViewerProps) {
     );
   }
 
+  // If there is an error or it's still decrypting, show a message
   return (
     <div className="flex flex-col items-center justify-center text-center space-y-4 w-full h-full">
        {error ? (
