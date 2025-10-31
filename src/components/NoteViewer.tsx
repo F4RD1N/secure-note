@@ -57,13 +57,11 @@ export default function NoteViewer({ note }: NoteViewerProps) {
   // Effect to confirm that the note has been viewed
   useEffect(() => {
     // If content is decrypted and the note has a view limit
-    if (decryptedContent) {
-      if (note.views_remaining !== null) {
+    if (decryptedContent && note.delete_after_first_view) {
         // Call the server action to decrement the view count
         confirmNoteView(note.id);
-      }
     }
-  }, [decryptedContent, note.id, note.views_remaining]);
+  }, [decryptedContent, note.id, note.delete_after_first_view]);
 
   // Effect to update the countdown timer for expiration
   useEffect(() => {
@@ -157,14 +155,12 @@ export default function NoteViewer({ note }: NoteViewerProps) {
             <CardTitle>یادداشت امن شما</CardTitle>
             <div className="text-sm text-muted-foreground flex flex-wrap gap-x-4 gap-y-1 pt-2">
               {/* Show remaining views if applicable */}
-              {note.views_remaining !== null && (
+              {note.delete_after_first_view ? (
                 <span className="flex items-center gap-1.5">
                   <Eye className="w-4 h-4" />
-                  {note.views_remaining === 1
-                    ? 'پس از این بازدید حذف خواهد شد'
-                    : `${note.views_remaining} بازدید باقی مانده`}
+                  پس از این بازدید حذف خواهد شد
                 </span>
-              )}
+              ) : null}
               {/* Show time left until expiration if applicable */}
               {timeLeft !== null && (
                 <span className="flex items-center gap-1.5">

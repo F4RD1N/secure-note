@@ -2,7 +2,6 @@
 'use server';
 
 // Import necessary functions and types
-import { redirect } from 'next/navigation';
 import { nanoid } from 'nanoid';
 import { initDb } from './db';
 import type { Note } from './types';
@@ -15,10 +14,10 @@ const cleanupNotes = () => {
   try {
     const now = Date.now();
     // Prepare a SQL statement to delete notes
-    // It deletes notes that are past their expiration time or have no views left
+    // It deletes notes that are past their expiration time or have been viewed if set to self-destruct
     const stmt = db.prepare(`
       DELETE FROM notes
-      WHERE (expires_at IS NOT NULL AND expires_at < ?) OR (views_remaining IS NOT NULL AND views_remaining <= 0)
+      WHERE (expires_at IS NOT NULL AND expires_at < ?) OR (delete_after_first_view = 1 AND views_count > 0)
     `);
     // Execute the statement with the current time
     stmt.run(now);
@@ -34,7 +33,7 @@ interface CreateNotePayload {
   salt: string | null;
   hasPassword: boolean;
   expiresAt: number | null;
-  viewsRemaining: number | null;
+  deleteAfterFirstView: boolean;
 }
 
 // This server action creates a new note in the database
@@ -43,16 +42,16 @@ export async function createNote(payload: CreateNotePayload) {
     // Generate a short, unique ID for the note
     const id = nanoid(8);
     const now = Date.now();
-    const { content, iv, salt, hasPassword, expiresAt, viewsRemaining } = payload;
+    const { content, iv, salt, hasPassword, expiresAt, deleteAfterFirstView } = payload;
     
     // Prepare the SQL statement to insert a new note
     const stmt = db.prepare(`
-      INSERT INTO notes (id, content, iv, salt, has_password, expires_at, views_remaining, created_at)
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+      INSERT INTO notes (id, content, iv, salt, has_password, expires_at, delete_after_first_view, created_at, views_count)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, 0)
     `);
 
     // Execute the statement with the note data
-    stmt.run(id, content, iv, salt, hasPassword ? 1 : 0, expiresAt, viewsRemaining, now);
+    stmt.run(id, content, iv, salt, hasPassword ? 1 : 0, expiresAt, deleteAfterFirstView ? 1 : 0, now);
     
     // Return the new note's ID
     return { id };
@@ -83,7 +82,7 @@ export async function getNote(id: string): Promise<Note | null> {
     }
     
     // Check for view-based expiration
-    if (note.views_remaining !== null && note.views_remaining <= 0) {
+    if (note.delete_after_first_view && note.views_count > 0) {
         return null;
     }
     
@@ -98,14 +97,8 @@ export async function getNote(id: string): Promise<Note | null> {
 // This server action confirms that a note has been viewed
 export async function confirmNoteView(id: string) {
     try {
-        // Get the current number of views remaining for the note
-        const note = db.prepare('SELECT views_remaining FROM notes WHERE id = ?').get(id) as Pick<Note, 'views_remaining'> | undefined;
-
-        // If the note exists and has a view limit
-        if (note && note.views_remaining !== null) {
-            // Decrement the view count by one
-            db.prepare('UPDATE notes SET views_remaining = views_remaining - 1 WHERE id = ?').run(id);
-        }
+        // Increment the view count by one
+        db.prepare('UPDATE notes SET views_count = views_count + 1 WHERE id = ?').run(id);
     } catch (error) {
         console.error(`Failed to update view count for note ${id}:`, error);
     }

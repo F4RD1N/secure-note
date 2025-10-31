@@ -194,12 +194,6 @@ export default function NoteCreator() {
         expiresAt = now.getTime() + data.expireValue * multiplier[data.expireUnit];
       }
 
-      // Set remaining views
-      let viewsRemaining = data.views ? data.views : null;
-      if (data.deleteAfterFirstView) {
-        viewsRemaining = 1;
-      }
-
       // Call the server action to create the note in the database
       const result = await createNote({
         content: ciphertext,
@@ -207,7 +201,7 @@ export default function NoteCreator() {
         salt,
         hasPassword,
         expiresAt,
-        viewsRemaining,
+        deleteAfterFirstView: data.deleteAfterFirstView,
       });
 
       // If creation is successful, generate and set the note link
@@ -215,7 +209,7 @@ export default function NoteCreator() {
         const link = `${window.location.origin}/n/${result.id}${!hasPassword ? `#${key}` : ''}`;
         setNoteLink(link);
       } else {
-        throw new Error('ایجاد یادداشت ناموفق بود.');
+        throw new Error('Note creation failed on the server.');
       }
     } catch (error) {
       // Show an error toast if something goes wrong
@@ -408,7 +402,7 @@ export default function NoteCreator() {
 
         {/* Submit button */}
         <div className="sticky bottom-0 pt-6 pb-4 flex flex-col sm:flex-row gap-2">
-          <Button type="submit" className="w-full" disabled={isSubmitting}>
+          <Button type="submit" className="w-full" variant="glass" size="lg" disabled={isSubmitting}>
             {isSubmitting ? (
               <>
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
